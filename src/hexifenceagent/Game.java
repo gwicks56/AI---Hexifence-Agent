@@ -36,14 +36,15 @@ public class Game {
 				new Point(3,3), new Point(5,3), new Point(3,5))))); // points need to be corrected
 		
 		
-		/* 2d char array for storing the text input map of the game board */
-		char[][] board = new char[info.get(2).getColumns()][info.get(2).getRows()];
-		
 		Scanner sc = new Scanner(System.in);
 		String line;
 	
 		int x = 0, y = 0;
 		int n = sc.nextInt(); // dimension of the board
+		
+		/* 2d char array for storing the text input map of the game board */
+		char[][] board = new char[info.get(n).getColumns()][info.get(n).getRows()];
+		
 		sc.nextLine();
 
 		// Read input board line by line and store the data in 2d array
@@ -73,7 +74,7 @@ public class Game {
 		 * The hexagons and the edges are added to their respective hash maps.
 		 * 
 		 */
-		Iterator<Point> hexPointIt = info.get(2).getHexagonLocs().iterator();
+		Iterator<Point> hexPointIt = info.get(n).getHexagonLocs().iterator();
 		while(hexPointIt.hasNext()) {
 			Point hexPoint = hexPointIt.next();
 			Hexagon hexagon = new Hexagon(hexPoint);
