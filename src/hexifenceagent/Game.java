@@ -9,31 +9,34 @@ import java.util.Scanner;
 
 public class Game {
 
-	/* Rows, Columns and the position of hexagons stored in BoardConfig, mapped by dimension (n = 2 or 3) */
-	public static HashMap<Integer, BoardConfig> info = new HashMap<Integer, BoardConfig>();
+	/* Collection of the positions of centres of hexagons, mapped by dimension (n = 2 or 3) */
+	public static HashMap<Integer, ArrayList<Point>> info = new HashMap<Integer, ArrayList<Point>>();
 	/* Collection of all hexagons where its mapped by its position */
 	public static HashMap<Point, Hexagon> Hexagons;
 	/* Collection of all edges where its mapped by its position  */
 	public static HashMap<Point, Edge> Edges;
 	
+	/* Maximum dimensions of the input board to be stored in 2d char array*/
+	public static final int MAX_ROWS = 12;
+	public static final int MAX_COLUMNS = 12;
 	
 	public static void main(String[] args) {
 		Hexagons = new HashMap<Point, Hexagon>();
 		Edges = new HashMap<Point, Edge>();
 		
 		
-		/* Save what we know about the rows and columns of the board and the positions of the hexagons depending
+		/* Save what we know about the positions of the hexagons depending
 		 * on whether n = 2 or 3.
 		 */
-		info.put(2, new BoardConfig(7,7, new ArrayList<Point>(Arrays.asList(new Point(1,1), new Point(3,1), 
+		info.put(2, new ArrayList<Point>(Arrays.asList(new Point(1,1), new Point(3,1), 
 				new Point(1,3), new Point(3,3), new Point(5,3), 
-				new Point(3,5), new Point(5,5)))));
+				new Point(3,5), new Point(5,5))));
 		
-		info.put(3, new BoardConfig(11,11, new ArrayList<Point>(Arrays.asList(new Point(1,1), new Point(3,1), new Point(1,3),
+		info.put(3, new ArrayList<Point>(Arrays.asList(new Point(1,1), new Point(3,1), new Point(1,3),
 				new Point(3,3), new Point(5,3), new Point(3,5), new Point(5,5),
 				new Point(3,3), new Point(5,3), new Point(3,5), new Point(5,5), new Point(5,5),
 				new Point(3,3), new Point(5,3), new Point(3,5), new Point(5,5),
-				new Point(3,3), new Point(5,3), new Point(3,5))))); // points need to be corrected
+				new Point(3,3), new Point(5,3), new Point(3,5)))); // points need to be corrected
 		
 		
 		Scanner sc = new Scanner(System.in);
@@ -43,7 +46,7 @@ public class Game {
 		int n = sc.nextInt(); // dimension of the board
 		
 		/* 2d char array for storing the text input map of the game board */
-		char[][] board = new char[info.get(n).getColumns()][info.get(n).getRows()];
+		char[][] board = new char[MAX_COLUMNS][MAX_ROWS];
 		
 		sc.nextLine();
 
@@ -59,7 +62,7 @@ public class Game {
 		    } 
 			y++;	
 		}
-		
+		sc.close();
 		/*for(y = 0; y < info.get(2).getRows(); y++) {
 			for(x = 0; x < info.get(2).getColumns(); x++) {
 				System.out.print(board[x][y]);
@@ -74,7 +77,7 @@ public class Game {
 		 * The hexagons and the edges are added to their respective hash maps.
 		 * 
 		 */
-		Iterator<Point> hexPointIt = info.get(n).getHexagonLocs().iterator();
+		Iterator<Point> hexPointIt = info.get(n).iterator();
 		while(hexPointIt.hasNext()) {
 			Point hexPoint = hexPointIt.next();
 			Hexagon hexagon = new Hexagon(hexPoint);
