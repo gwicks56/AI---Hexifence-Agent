@@ -9,8 +9,11 @@ import java.util.Scanner;
 
 public class Game {
 
+	/* Rows, Columns and the position of hexagons stored in BoardConfig, mapped by dimension (n = 2 or 3) */
 	public static HashMap<Integer, BoardConfig> info = new HashMap<Integer, BoardConfig>();
+	/* Collection of all hexagons where its mapped by its position */
 	public static HashMap<Point, Hexagon> Hexagons;
+	/* Collection of all edges where its mapped by its position  */
 	public static HashMap<Point, Edge> Edges;
 	
 	
@@ -19,7 +22,9 @@ public class Game {
 		Edges = new HashMap<Point, Edge>();
 		
 		
-		
+		/* Save what we know about the rows and columns of the board and the positions of the hexagons depending
+		 * on whether n = 2 or 3.
+		 */
 		info.put(2, new BoardConfig(7,7, new ArrayList<Point>(Arrays.asList(new Point(1,1), new Point(3,1), 
 				new Point(1,3), new Point(3,3), new Point(5,3), 
 				new Point(3,5), new Point(5,5)))));
@@ -31,19 +36,17 @@ public class Game {
 				new Point(3,3), new Point(5,3), new Point(3,5))))); // points need to be corrected
 		
 		
-		char[][] board = new char[info.get(2).getRows()][info.get(2).getColumns()];
+		/* 2d char array for storing the text input map of the game board */
+		char[][] board = new char[info.get(2).getColumns()][info.get(2).getRows()];
 		
-		
-		// TODO Auto-generated method stub
 		Scanner sc = new Scanner(System.in);
 		String line;
 	
 		int x = 0, y = 0;
-		
-		
-		int n = sc.nextInt();
+		int n = sc.nextInt(); // dimension of the board
 		sc.nextLine();
 
+		// Read input board line by line and store the data in 2d array
 		while(sc.hasNextLine()) {
 			line = sc.nextLine();		
 			x = 0;
@@ -64,6 +67,12 @@ public class Game {
 		}*/
 		
 		
+		
+		/*
+		 * For each hexagon, all six 6 edges with its details are created and added to hexagon data structure.
+		 * The hexagons and the edges are added to their respective hash maps.
+		 * 
+		 */
 		Iterator<Point> hexPointIt = info.get(2).getHexagonLocs().iterator();
 		while(hexPointIt.hasNext()) {
 			Point hexPoint = hexPointIt.next();
@@ -71,7 +80,7 @@ public class Game {
 			
 			Edge edge;
 			int index = 0;
-			// Moving clockwise from top-right
+			// Moving clockwise from top-right edge
 			Point edgePos = new Point(hexPoint.x, hexPoint.y-1);
 			edge = AddEdge(hexagon, edgePos, board[edgePos.x][edgePos.y]);
 			hexagon.addEdge(index++, edge);
@@ -108,8 +117,12 @@ public class Game {
 		
 	}
 	
+	/* This method adds an edge to the hexagon */
 	public static Edge AddEdge(Hexagon parent, Point edgePos, char status) {
 		Edge outputEdge;
+		
+		// If the Edges hashmap already has an edge at this position, this is a shared edge
+		// the parent is added to the edge and the parent's captured edge count is incremented
 		if (Edges.containsKey(edgePos)) {
 			outputEdge = Edges.get(edgePos);
 			outputEdge.addParent(parent);
@@ -119,6 +132,8 @@ public class Game {
 				parent.captureSide();
 			}
 		}
+		// Otherwise, a new edge is created, its details are added to it and the parent's captured edge count
+		// is incremented
 		else {
 			outputEdge = new Edge(edgePos);
 			outputEdge.addParent(parent);
@@ -138,7 +153,7 @@ public class Game {
 		return outputEdge;
 	}
 	
-	
+	/*
 	public static void BoardDesc() {
 		for(Hexagon hexagon : Hexagons.values()) {
 			System.out.println("Hexagon Position: " + hexagon.getPosition());
@@ -163,7 +178,12 @@ public class Game {
 		}
 		
 	}
+	*/
 	
+	
+	/*
+	 * This method looks for the number of unmarked edges to find possible moves
+	 */
 	public static void GetNumberOfPossibleMoves() {
 		int moveCount = 0;
 		for(Edge edge : Edges.values()) {
@@ -174,6 +194,10 @@ public class Game {
 		System.out.println(moveCount);
 	}
 	
+	
+	/*
+	 * This method looks for hexagons with 5 edges captured to find the answer
+	 */
 	public static void GetNumberOfHexagonalCellsAvailableForCapture(){
 		int hexagonCount = 0;
 		for(Hexagon hexagon : Hexagons.values()) {
@@ -184,13 +208,18 @@ public class Game {
 		System.out.println(hexagonCount);
 	}
 
+	
 	public static void GetMaximumNumberOfHexagonalCellsThatCanBeCapturedByOneMove() {
 		int hexagonCount = 0;
 		for(Hexagon hexagon : Hexagons.values()) {
+			// If a hexagon with 5 edges captured is found, then at least 1 cell can be captured by a move
 			if(hexagon.getSidesTaken() == 5) {
 				if(hexagonCount == 0) {
 					hexagonCount = 1;	
 				}
+				// Then we look at all the edges of that hexagon to find any other hexagon which shares the lone unmarked edge
+				// with the former. If the latter hexagon also has 5 edges captured, then we can confirm that 2 hexagons can be
+				// captured by one move.
 				for (Edge edge : hexagon.getEdges()) {
 					if(!edge.isMarked()) {
 						for (Hexagon parent : edge.getParents()) {

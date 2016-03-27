@@ -3,10 +3,14 @@ package hexifenceagent;
 import java.awt.Point;
 import java.util.ArrayList;
 
+/*
+ * A data structure to store some information regarding the board that we can assume
+ * depending on the dimension of the board
+ */
 public class BoardConfig {
-	private int rows;
-	private int columns;
-	private ArrayList<Point> hexagonLocs;
+	private int rows; // number of rows of input board map
+	private int columns; // number of columns of input board map
+	private ArrayList<Point> hexagonLocs; // locations of centre of hexagons.. 
 	
 	public BoardConfig(int rows, int columns, ArrayList<Point> hexagonLocs) {
 		this.rows = rows;

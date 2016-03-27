@@ -3,11 +3,14 @@ package hexifenceagent;
 import java.awt.Point;
 import java.util.ArrayList;
 
+/*
+ * Hexagon data structure
+ */
 public class Hexagon {
 
-	private ArrayList<Edge> edges;
-	private Point position;
-	private int sidesTaken;
+	private ArrayList<Edge> edges; // List of edges from top-right edge going clockwise
+	private Point position; // the position of the centre of the hexagon
+	private int sidesTaken; // the number of edges captured by player
 	
 	public Hexagon(Point position){
 		sidesTaken = 0;

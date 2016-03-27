@@ -3,12 +3,15 @@ package hexifenceagent;
 import java.awt.Point;
 import java.util.ArrayList;
 
+/*
+ * Edge data structure - A side of a hexagon
+ */
 public class Edge {
-	private Point position;
-	private boolean isMarked;
-	private String colour;
-	private boolean isShared;
-	ArrayList<Hexagon> parents;
+	private Point position; // the position of the hexagon on map
+	private boolean isMarked; // tells us whether the edge is marked by a colour or not
+	private String colour; // the colour of the edge if it is marked
+	private boolean isShared; // tells us whether the edge is shared with another hexagon or not
+	ArrayList<Hexagon> parents; // list of hexagons which is composed of this edge (maximum 2)
 	
 	public Edge(Point position) {
 		this.parents = new ArrayList<Hexagon>();
