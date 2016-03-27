@@ -16,10 +16,6 @@ public class Game {
 	/* Collection of all edges where its mapped by its position  */
 	public static HashMap<Point, Edge> Edges;
 	
-	/* Maximum dimensions of the input board to be stored in 2d char array*/
-	public static final int MAX_ROWS = 12;
-	public static final int MAX_COLUMNS = 12;
-	
 	public static void main(String[] args) {
 		Hexagons = new HashMap<Point, Hexagon>();
 		Edges = new HashMap<Point, Edge>();
@@ -32,11 +28,11 @@ public class Game {
 				new Point(1,3), new Point(3,3), new Point(5,3), 
 				new Point(3,5), new Point(5,5))));
 		
-		info.put(3, new ArrayList<Point>(Arrays.asList(new Point(1,1), new Point(3,1), new Point(1,3),
-				new Point(3,3), new Point(5,3), new Point(3,5), new Point(5,5),
-				new Point(3,3), new Point(5,3), new Point(3,5), new Point(5,5), new Point(5,5),
-				new Point(3,3), new Point(5,3), new Point(3,5), new Point(5,5),
-				new Point(3,3), new Point(5,3), new Point(3,5)))); // points need to be corrected
+		info.put(3, new ArrayList<Point>(Arrays.asList(new Point(1,1), new Point(3,1), new Point(5,1),
+				new Point(1,3), new Point(3,3), new Point(5,3), new Point(7,3),
+				new Point(1,5), new Point(3,5), new Point(5,5), new Point(7,5), new Point(9,5),
+				new Point(3,7), new Point(5,7), new Point(7,7), new Point(9,7),
+				new Point(5,9), new Point(7,9), new Point(9,9)))); // points need to be verified
 		
 		
 		Scanner sc = new Scanner(System.in);
@@ -46,7 +42,7 @@ public class Game {
 		int n = sc.nextInt(); // dimension of the board
 		
 		/* 2d char array for storing the text input map of the game board */
-		char[][] board = new char[MAX_COLUMNS][MAX_ROWS];
+		char[][] board = new char[4*n - 1][4*n - 1];
 		
 		sc.nextLine();
 
