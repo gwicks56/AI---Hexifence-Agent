@@ -1,15 +1,19 @@
 package hexifenceagent;
 
+import java.awt.Point;
 import java.util.ArrayList;
 
 public class Edge {
+	private Point position;
 	private boolean isMarked;
 	private String colour;
 	private boolean isShared;
 	ArrayList<Hexagon> parents;
 	
-	public Edge() {
+	public Edge(Point position) {
 		this.parents = new ArrayList<Hexagon>();
+		this.position = position;
+		isMarked = false;
 	}
 
 	public boolean isMarked() {
@@ -42,6 +46,14 @@ public class Edge {
 
 	public void addParent(Hexagon parent) {
 		parents.add(parent);
+	}
+
+	public Point getPosition() {
+		return position;
+	}
+
+	public void setPosition(Point position) {
+		this.position = position;
 	}
 	
 	

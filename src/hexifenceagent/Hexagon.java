@@ -9,9 +9,9 @@ public class Hexagon {
 	private Point position;
 	private int sidesTaken;
 	
-	public Hexagon(){
+	public Hexagon(Point position){
 		sidesTaken = 0;
-		position = null;
+		this.position = position;
 		edges = new ArrayList<Edge>(6);
 	}
 
