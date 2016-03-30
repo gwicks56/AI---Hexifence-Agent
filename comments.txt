@@ -1,0 +1,12 @@
+H = number of hexagons
+E = number of edges
+
+0) explain data structure
+
+1) O(E)
+
+2) O(H)
+
+3) O(H * E)
+
+syntax error explanation

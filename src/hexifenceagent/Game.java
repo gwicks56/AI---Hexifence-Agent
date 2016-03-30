@@ -38,8 +38,16 @@ public class Game {
 		Scanner sc = new Scanner(System.in);
 		String line;
 	
-		int x = 0, y = 0;
-		int n = sc.nextInt(); // dimension of the board
+		int x = 0, n = 0;
+		
+		// If the first line does not contain the dimension number
+		try {
+			n = sc.nextInt(); // dimension of the board
+		} catch(Exception e) {
+			System.out.println("1 Invalid input.");
+			System.exit(1);
+		}
+		
 		
 		/* 2d char array for storing the text input map of the game board */
 		char[][] board = new char[4*n - 1][4*n - 1];
@@ -47,33 +55,48 @@ public class Game {
 		sc.nextLine();
 
 		// Read input board line by line and store the data in 2d array
-		while(sc.hasNextLine()) {
-			line = sc.nextLine();		
+		for(int y = 0; y < (4*n)-1; y++) {
+			
+			// If there are less lines than expected in input
+			if(!sc.hasNextLine()) {
+				System.out.println("2 Invalid input.");
+				System.exit(1);
+			}
+			
+			line = sc.nextLine();
+			
+			// If there are wrong number of elements on each line (including in-between spaces)
+			if (line.length() != 8*n - 3) {
+				System.out.println("3 Invalid input.");
+				System.exit(1);
+			}
+			char[] lineChars= line.toCharArray();
 			x = 0;
-			for (char ch : line.toCharArray()){
-		        if (ch == ' ' || ch == '\n') continue;
-				board[x][y] = ch;
-				//System.out.print(ch);
-				x++;
-		    } 
-			y++;	
+			
+			for(int i = 0; i < 8*n -3; i += 2) {
+				char ch = lineChars[i];
+				if(ch != 'R' && ch != 'B' && ch != '+' && ch != '-') {
+					System.out.println("4 Invalid input." + ch);
+					System.exit(1);
+				}
+				board[x++][y] = lineChars[i];
+			}
+			
+		}
+		
+		// If there are more lines than expected in input
+		if(sc.hasNextLine()) {
+			System.out.println("5 Invalid input.");
+			System.exit(1);
 		}
 		sc.close();
-		/*for(y = 0; y < info.get(2).getRows(); y++) {
-			for(x = 0; x < info.get(2).getColumns(); x++) {
-				System.out.print(board[x][y]);
-			}
-			System.out.println();
-		}*/
-		
-		
 		
 		/*
 		 * For each hexagon, all six 6 edges with its details are created and added to hexagon data structure.
 		 * The hexagons and the edges are added to their respective hash maps.
 		 * 
 		 */
-		Iterator<Point> hexPointIt = info.get(n).iterator();
+		Iterator<Point> hexPointIt = info.get(n).iterator();		
 		while(hexPointIt.hasNext()) {
 			Point hexPoint = hexPointIt.next();
 			Hexagon hexagon = new Hexagon(hexPoint);
@@ -113,6 +136,8 @@ public class Game {
 		GetNumberOfPossibleMoves();
 		GetMaximumNumberOfHexagonalCellsThatCanBeCapturedByOneMove();
 		GetNumberOfHexagonalCellsAvailableForCapture();
+		
+		//System.out.println(Arrays.deepToString(board));
 		
 		
 	}
