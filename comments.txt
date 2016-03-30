@@ -7,6 +7,6 @@ E = number of edges
 
 2) O(H)
 
-3) O(H * E)
+3) O(H + E)
 
 syntax error explanation
