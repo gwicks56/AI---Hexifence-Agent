@@ -10,23 +10,23 @@ whether or not the Edge is shared between two Hexagons (isShared), and an ArrayL
 The Hexagon data structure holds information on each Hexagon, including an ArrayList of the Edges it is made up of (edges), 
 it’s position (position) and the number of sides captured (sidesTaken).
 
-To find the total number of possible moves, we interate over every edge and count the ones that are !isMarked - O (E)
-*** NOTE: We are experimenting with trying to use sidesTaken for each Hexagon, minus shared sides, to decrease this to O(H) **** 
+1. To find the total number of possible moves, we interate over every edge and count the ones that are !isMarked - O (E)
 
 For every Edge in EdgeValues:
 	if Edge is not isMarked:
 		moveCount++
 
-By utilising these data structures, when searching for the best move to make, we can efficiently find out how many hexagons are available for capture 
+2. By utilising these data structures, when searching for the best move to make, we can efficiently find out how many hexagons are available for capture 
 ( iterate over each hexagon looking for Hexagon objects which have : sidesTaken = 5). With our data structure this is possible in O (H).
 
 For every Hexagon:
 	if sidestaken = 5:
 		captureCount++
 
-To find moves in which 2 Hexagons can be captured in only one move, after searching and finding a Hexagon with 5 sides taken, we then look at the other Hexagon 
-which shares an Edge with current Hexagon (isShared), to see if any also have sidesTaken = 5, which means two Hexagons can be captured with only one move. 
-In the worst case scenario this could take O ( H + E ), but in practice should be much lower
+3. To find moves in which 2 Hexagons can be captured in only one move, after searching and finding a Hexagon with 5 sides taken, we then look at the other Hexagon 
+which shares an Edge with current Hexagon (isShared), to see if any also have sidesTaken = 5, which means two Hexagons can be captured with only one move and its
+immediately returned. In the worst case scenario every hexagon with 5 sides captured is only adjacent to hexagons with 4 sides captured. In that case, only a small fraction
+of the edges need to be searched. In the worst case scenario this could take O ( H + (p/q)E ) where p < q, but in practice it should be much lower.
 
 For every Hexagon:
 	if sidesTaken = 5:
@@ -35,28 +35,28 @@ For every Hexagon:
 			if edge !isMarked:
 				if getParents = true && parent.sidesTaken = 5:
 					hexagonCount = 2
+					return
 		
 
-
-H = number of hexagons
-E = number of edges
-
+H = total number of hexagons
+E = total number of edges
 
 1) O(E)
 
 2) O(H)
 
-3) O(H + E)
+3) O(H + (p/q)E) where p < q
 
-syntax error explanation
+SYNTAX ERROR EXPLANATION:
 
 In terms of error checking, our code checks to make sure there are the correct number of rows and columns for the dimensions specified, 
 as well as checking that each entry can only be one of four characters (R,B,+,-).
 
 PLEASE NOTE: the rows and columns do need to be correctly aligned! Ie if one row or column as an incorrect number of whitespaces the program 
-will return an error. The correct number of whitespaces is 1 between each column, and 0 between each row.
+will return an error. The correct number of whitespaces is 1 between each column, and 0 between each row. If there are extra trailing blank links 
+or trailing spaces at the end of the rows, it will also be detected as error.
 
-Examample:
+Example:
 
 - - + -
 - + + -
