@@ -1,7 +1,46 @@
+Our Project uses basic Java libraries, including:
+Point, ArrayList, HashMap, Iterator and Scanner
+
+In building Project A, we have concentrated on building a data structure that enables efficient search of the best next move. 
+For this reason, we have decided to use two data structures, the Hexagon, which is made up of Edges.
+
+The Edge data structure holds information on each Edge, including whether or not it has been captured (isMarked), it’s colour (colour), 
+whether or not the Edge is shared between two Hexagons (isShared), and an ArrayList of the Hexagons it is part of (parents).
+
+The Hexagon data structure holds information on each Hexagon, including an ArrayList of the Edges it is made up of (edges), 
+it’s position (position) and the number of sides captured (sidesTaken).
+
+To find the total number of possible moves, we interate over every edge and count the ones that are !isMarked - O (E)
+*** NOTE: We are experimenting with trying to use sidesTaken for each Hexagon, minus shared sides, to decrease this to O(H) **** 
+
+For every Edge in EdgeValues:
+	if Edge is not isMarked:
+		moveCount++
+
+By utilising these data structures, when searching for the best move to make, we can efficiently find out how many hexagons are available for capture 
+( iterate over each hexagon looking for Hexagon objects which have : sidesTaken = 5). With our data structure this is possible in O (H).
+
+For every Hexagon:
+	if sidestaken = 5:
+		captureCount++
+
+To find moves in which 2 Hexagons can be captured in only one move, after searching and finding a Hexagon with 5 sides taken, we then look at the other Hexagon 
+which shares an Edge with current Hexagon (isShared), to see if any also have sidesTaken = 5, which means two Hexagons can be captured with only one move. 
+In the worst case scenario this could take O ( H + E ), but in practice should be much lower
+
+For every Hexagon:
+	if sidesTaken = 5:
+		hexagonCount = 1:
+		for every edge in Hexagon:
+			if edge !isMarked:
+				if getParents = true && parent.sidesTaken = 5:
+					hexagonCount = 2
+		
+
+
 H = number of hexagons
 E = number of edges
 
-0) explain data structure
 
 1) O(E)
 
@@ -10,3 +49,18 @@ E = number of edges
 3) O(H + E)
 
 syntax error explanation
+
+In terms of error checking, our code checks to make sure there are the correct number of rows and columns for the dimensions specified, 
+as well as checking that each entry can only be one of four characters (R,B,+,-).
+
+PLEASE NOTE: the rows and columns do need to be correctly aligned! Ie if one row or column as an incorrect number of whitespaces the program 
+will return an error. The correct number of whitespaces is 1 between each column, and 0 between each row.
+
+Examample:
+
+- - + -
+- + + -
+- +  + -
+- + - -
+
+Will throw an error due to row 3 having an extra whitespace between column 2 and 3.

@@ -1,3 +1,8 @@
+/*
+ * Geordie Wicks [185828] and Mubashwer Salman Khurshid [601738]
+ * Project 1 - Artificial Intelligence
+ */
+
 package hexifenceagent;
 
 import java.awt.Point;
@@ -6,6 +11,11 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Scanner;
+
+
+/*
+* This is the entry point of hexifence game
+*/	
 
 public class Game {
 
@@ -23,6 +33,8 @@ public class Game {
 		
 		/* Save what we know about the positions of the hexagons depending
 		 * on whether n = 2 or 3.
+		 * Hardcoded the values rather than using a loop, as we know n=2 or n=3 it should offer a 
+		 * small performance improvement
 		 */
 		info.put(2, new ArrayList<Point>(Arrays.asList(new Point(1,1), new Point(3,1), 
 				new Point(1,3), new Point(3,3), new Point(5,3), 
@@ -44,7 +56,7 @@ public class Game {
 		try {
 			n = sc.nextInt(); // dimension of the board
 		} catch(Exception e) {
-			System.out.println("1 Invalid input.");
+			System.out.println("Incorrect board dimension.");
 			System.exit(1);
 		}
 		
@@ -59,7 +71,7 @@ public class Game {
 			
 			// If there are less lines than expected in input
 			if(!sc.hasNextLine()) {
-				System.out.println("2 Invalid input.");
+				System.out.println("Invalid input: Incorrect number of rows");
 				System.exit(1);
 			}
 			
@@ -67,7 +79,7 @@ public class Game {
 			
 			// If there are wrong number of elements on each line (including in-between spaces)
 			if (line.length() != 8*n - 3) {
-				System.out.println("3 Invalid input.");
+				System.out.println("Invalid input: Incorrect number of columns");
 				System.exit(1);
 			}
 			char[] lineChars= line.toCharArray();
@@ -76,7 +88,7 @@ public class Game {
 			for(int i = 0; i < 8*n -3; i += 2) {
 				char ch = lineChars[i];
 				if(ch != 'R' && ch != 'B' && ch != '+' && ch != '-') {
-					System.out.println("4 Invalid input." + ch);
+					System.out.println(ch + " is not a valid character");
 					System.exit(1);
 				}
 				board[x++][y] = lineChars[i];
@@ -86,7 +98,7 @@ public class Game {
 		
 		// If there are more lines than expected in input
 		if(sc.hasNextLine()) {
-			System.out.println("5 Invalid input.");
+			System.out.println("Invalid input: Incorrect number of rows");
 			System.exit(1);
 		}
 		sc.close();
@@ -94,7 +106,7 @@ public class Game {
 		/*
 		 * For each hexagon, all six 6 edges with its details are created and added to hexagon data structure.
 		 * The hexagons and the edges are added to their respective hash maps.
-		 * 
+		 *  Again we hardcode the values rather than using a loop, in the hope of minor performance gains
 		 */
 		Iterator<Point> hexPointIt = info.get(n).iterator();		
 		while(hexPointIt.hasNext()) {
@@ -179,6 +191,9 @@ public class Game {
 	}
 	
 	/*
+	** Helper function which may be needed later so left in **
+
+
 	public static void BoardDesc() {
 		for(Hexagon hexagon : Hexagons.values()) {
 			System.out.println("Hexagon Position: " + hexagon.getPosition());

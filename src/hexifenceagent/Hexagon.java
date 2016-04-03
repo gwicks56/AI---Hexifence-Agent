@@ -1,10 +1,17 @@
-package hexifenceagent;
+/*
+ * Geordie Wicks [185828] and Mubashwer Salman Khurshid [601738]
+ * Project 1 - Artificial Intelligence
+ */
+
+
+ hexifenceagent;
 
 import java.awt.Point;
 import java.util.ArrayList;
 
 /*
  * Hexagon data structure
+ * Each hexagon has a position, and array of Edges and a counter tracking how many sides have been taken
  */
 public class Hexagon {
 
@@ -18,25 +25,49 @@ public class Hexagon {
 		edges = new ArrayList<Edge>(6);
 	}
 
+	/*
+	* Return arrayList of hexagons Edges
+	*/	
+
 	public ArrayList<Edge> getEdges() {
 		return edges;
 	}
+
+	/*
+	* Add an Edge to the hexagon
+	*/	
 
 	public void addEdge(int index, Edge edge) {
 		edges.add(index, edge);
 	}
 
+	/*
+	* Return point position of hexagon
+	*/	
+
 	public Point getPosition() {
 		return position;
 	}
+
+	/*
+	* Set position of hexagon
+	*/	
 
 	public void setPosition(Point position) {
 		this.position = position;
 	}
 
+	/*
+	* Return number of sides of hexagon currently captured
+	*/	
+
 	public int getSidesTaken() {
 		return sidesTaken;
 	}
+
+	/*
+	* Capture an Edge and update number of Edges captured
+	*/	
 
 	public void captureSide() {
 		this.sidesTaken++;
