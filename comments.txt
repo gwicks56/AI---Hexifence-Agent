@@ -53,8 +53,8 @@ In terms of error checking, our code checks to make sure there are the correct n
 as well as checking that each entry can only be one of four characters (R,B,+,-).
 
 PLEASE NOTE: the rows and columns do need to be correctly aligned! Ie if one row or column as an incorrect number of whitespaces the program 
-will return an error. The correct number of whitespaces is 1 between each column, and 0 between each row. If there are extra trailing blank links 
-or trailing spaces at the end of the rows, it will also be detected as error.
+will return an error. The correct number of whitespaces is 1 between each column, and 0 between each row. There CAN'T be leading white spaces
+in rows. But trailing white spaces in rows and trailing blank lines are ignored.
 
 Example:
 

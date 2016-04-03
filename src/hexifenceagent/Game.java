@@ -78,8 +78,9 @@ public class Game {
 			line = sc.nextLine();
 			
 			// If there are wrong number of elements on each line (including in-between spaces)
-			if (line.length() != 8*n - 3) {
-				System.out.println("Invalid input: Incorrect number of columns");
+			// Trailing spaces are ignored (but not leading ones)
+			if (line.substring(0, 1).equals(" ") || line.trim().length() != 8*n - 3) {
+			    System.out.println("Invalid input: Incorrect number of columns");
 				System.exit(1);
 			}
 			char[] lineChars= line.toCharArray();
@@ -97,9 +98,12 @@ public class Game {
 		}
 		
 		// If there are more lines than expected in input
+		// Trailing blank lines are ignored
 		if(sc.hasNextLine()) {
-			System.out.println("Invalid input: Incorrect number of rows");
-			System.exit(1);
+		    if(sc.hasNext()) {
+		        System.out.println("Invalid input: Incorrect number of rows");
+		        System.exit(1);
+		    }
 		}
 		sc.close();
 		
@@ -145,11 +149,11 @@ public class Game {
 		}
 		
 		//BoardDesc();
-		GetNumberOfPossibleMoves();
-		GetMaximumNumberOfHexagonalCellsThatCanBeCapturedByOneMove();
-		GetNumberOfHexagonalCellsAvailableForCapture();
+		System.out.println(GetNumberOfPossibleMoves());
+		System.out.println(GetMaximumNumberOfHexagonalCellsThatCanBeCapturedByOneMove());
+		System.out.println(GetNumberOfHexagonalCellsAvailableForCapture());
 		
-		//System.out.println(Arrays.deepToString(board));
+
 		
 		
 	}
@@ -224,32 +228,32 @@ public class Game {
 	/*
 	 * This method looks for the number of unmarked edges to find possible moves
 	 */
-	public static void GetNumberOfPossibleMoves() {
+	public static int GetNumberOfPossibleMoves() {
 		int moveCount = 0;
 		for(Edge edge : Edges.values()) {
 			if(!edge.isMarked()) {
 				moveCount++;
 			}
 		}
-		System.out.println(moveCount);
+		return moveCount;
 	}
 	
 	
 	/*
 	 * This method looks for hexagons with 5 edges captured to find the answer
 	 */
-	public static void GetNumberOfHexagonalCellsAvailableForCapture(){
+	public static int GetNumberOfHexagonalCellsAvailableForCapture(){
 		int hexagonCount = 0;
 		for(Hexagon hexagon : Hexagons.values()) {
 			if(hexagon.getSidesTaken() == 5) {
 				hexagonCount++;
 			}
 		}
-		System.out.println(hexagonCount);
+		return hexagonCount;
 	}
 
 	
-	public static void GetMaximumNumberOfHexagonalCellsThatCanBeCapturedByOneMove() {
+	public static int GetMaximumNumberOfHexagonalCellsThatCanBeCapturedByOneMove() {
 		int hexagonCount = 0;
 		for(Hexagon hexagon : Hexagons.values()) {
 			// If a hexagon with 5 edges captured is found, then at least 1 cell can be captured by a move
@@ -263,10 +267,9 @@ public class Game {
 				for (Edge edge : hexagon.getEdges()) {
 					if(!edge.isMarked()) {
 						for (Hexagon parent : edge.getParents()) {
-							if(!parent.getPosition().equals(hexagon.getPosition()) && parent.getSidesTaken() == 5 ) {
+							if(!parent.getPosition().equals(hexagon.getPosition()) && parent.getSidesTaken() == 5) {
 								hexagonCount = 2;
-								System.out.println(hexagonCount);
-								return;
+								return hexagonCount;
 							}
 						}
 					}
@@ -274,7 +277,7 @@ public class Game {
 				
 			}
 		}
-		System.out.println(hexagonCount);
+		return hexagonCount;
 	}
 	
 }
