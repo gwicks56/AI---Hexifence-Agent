@@ -107,6 +107,14 @@ public class Edge {
 		this.position = position;
 	}
 	
+	public Hexagon getOtherParent(Hexagon parent) {
+		for (Hexagon p : parents) {
+			if(!p.getPosition().equals(parent.getPosition())) {
+				return p;
+			}
+		}
+		return parent;
+	}
 	
 	
 }

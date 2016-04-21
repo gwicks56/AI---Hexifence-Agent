@@ -11,7 +11,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Scanner;
-
+import java.util.Random;
 
 /*
 * This is the entry point of hexifence game
@@ -26,9 +26,18 @@ public class Game {
 	/* Collection of all edges where its mapped by its position  */
 	public static HashMap<Point, Edge> Edges;
 	
+	public static HashMap<ArrayList<Hexagon>, Integer> Chains;
+	
+	private static Random random;
+	
+	public Game() {
+		random = new Random();
+	}
+	
 	public static void main(String[] args) {
 		Hexagons = new HashMap<Point, Hexagon>();
 		Edges = new HashMap<Point, Edge>();
+		Chains = new HashMap<ArrayList<Hexagon>, Integer>();
 		
 		
 		/* Save what we know about the positions of the hexagons depending
@@ -193,6 +202,66 @@ public class Game {
 		}
 		return outputEdge;
 	}
+	
+	public static void FindChains() {
+		Chains.clear();
+		for(Hexagon hexagon: Hexagons.values()) {
+			hexagon.setVisited(false);
+		}
+		
+		for(Hexagon hexagon: Hexagons.values()) {
+			ArrayList<Hexagon> chain = new ArrayList<Hexagon>();
+			FindChains(hexagon, chain);
+			int chainSize = chain.size();
+			if(chainSize > 0) {
+				Chains.put(chain, chainSize);
+			}
+		}
+	}
+	
+	public static void FindChains(Hexagon current, ArrayList<Hexagon> chain) {
+		if(!current.isVisited()) return;
+		current.setVisited(true);
+		if(current.getSidesTaken() == 4) {
+			chain.add(current);
+			for(Edge edge: current.getEdges()) {
+				if(!edge.isMarked() && edge.isShared()) {
+					Hexagon adjacent = edge.getOtherParent(current);
+					if(adjacent.getSidesTaken() == 4) {
+						chain.add(adjacent);
+						FindChains(current, chain); //REC STARTS
+					}
+				}
+			}
+		}
+	}
+	
+	
+	public static Edge MakeMove() {
+		for(Hexagon hexagon: Hexagons.values()) {
+			if(hexagon.getSidesTaken() == 5)
+				for(Edge edge: hexagon.getEdges()) {
+					if(!edge.isMarked()) {
+						return edge;
+					}
+				}
+		}
+		
+		ArrayList<Edge> safeMoves = new ArrayList<Edge>();
+		
+		for (Edge edge: Edges.values()) {
+			for(Hexagon parent: edge.getParents()) {
+				if (parent.getSidesTaken() == 4) {
+					break;
+				}
+				safeMoves.add(edge);
+			}
+		}
+		int index = random.nextInt(safeMoves.size());
+		return safeMoves.get(index);
+	}
+	
+	
 	
 	/*
 	** Helper function which may be needed later so left in **
