@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Random;
 
 public class MoveFinder implements IMoveFinder {
-    private HashMap<ArrayList<Hexagon>, Integer> Chains;
+    private HashMap<ArrayList<Hexagon>, Integer> OpenChains;
     private ArrayList<ArrayList<Edge>> DoubleDeals;  
     private Random random;
     private Game game;
@@ -20,7 +20,7 @@ public class MoveFinder implements IMoveFinder {
         Hexagons = game.getHexagons();
         Edges = game.getEdges();    
         random = new Random();  
-        Chains = new HashMap<ArrayList<Hexagon>, Integer>();
+        OpenChains = new HashMap<ArrayList<Hexagon>, Integer>();
         DoubleDeals = new ArrayList<ArrayList<Edge>>();
 
     }
@@ -30,7 +30,6 @@ public class MoveFinder implements IMoveFinder {
         ArrayList<Edge> safeMoves = new ArrayList<Edge>();
         ArrayList<Edge> unsafeMoves = new ArrayList<Edge>();
         ArrayList<Edge> captureMoves = new ArrayList<Edge>();
-
         
         // Generates safe(non-capturable), unsafe and capture moves
         for (Edge edge: Edges.values()) {
@@ -120,7 +119,7 @@ public class MoveFinder implements IMoveFinder {
         
         ArrayList<Hexagon> smallestChain = null;
         int minSize = Integer.MAX_VALUE;
-        for(Map.Entry<ArrayList<Hexagon>,Integer> e : Chains.entrySet()) {
+        for(Map.Entry<ArrayList<Hexagon>,Integer> e : OpenChains.entrySet()) {
             int size = e.getValue();
             if (size < minSize) {
                 minSize = size;
@@ -199,7 +198,7 @@ public class MoveFinder implements IMoveFinder {
 
         
     public void findChains() {
-        Chains.clear();
+        OpenChains.clear();
         for(Hexagon hexagon: Hexagons.values()) {
             hexagon.setVisited(false);
         }
@@ -209,7 +208,7 @@ public class MoveFinder implements IMoveFinder {
             findChains(hexagon, chain);
             int chainSize = chain.size();
             if(chainSize > 0) {
-                Chains.put(chain, chainSize);
+                OpenChains.put(chain, chainSize);
             }
         }
     }
