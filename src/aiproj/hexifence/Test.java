@@ -1,8 +1,11 @@
 package aiproj.hexifence;
 
 public class Test {
+    
 
     public static void main(String[] args) {
+        
+        
         int P1count = 0;
         int P2count = 0;
         int error = 0;
@@ -24,6 +27,7 @@ public class Test {
         System.out.println("P1 WIN: " + P1count);
         System.out.println("P2 WIN: " + P2count);
         System.out.println("P1 WIN%: " + (P1count/((double)(P1count+P2count))) * 100.0);
+        System.out.println("P2 WIN%: " + (P2count/((double)(P1count+P2count))) * 100.0);
         System.out.println("ERROR : " + error);
     }
 

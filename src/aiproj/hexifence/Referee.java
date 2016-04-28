@@ -108,14 +108,16 @@ public class Referee implements Piece{
 		P2.printBoard(System.out);
 		System.out.println("P1 Board is :");
 		P1.printBoard(System.out);
-		
-		System.out.println("Player one (BLUE) indicate winner as: "+ P1.getWinner());
-		System.out.println("Player two (RED) indicate winner as: "+ P2.getWinner());
+		int p1winner = P1.getWinner();
+		int p2winner = P2.getWinner();
+		System.out.println("Player one (BLUE) indicate winner as: "+ p1winner);
+		System.out.println("Player two (RED) indicate winner as: "+ p2winner);
 		System.out.println("Total Number of Moves Played in the Game: "+ NumberofMoves);
 		System.out.println("Referee Finished !");
 		
-		if (P1.getWinner() == 2 || P2.getWinner() == 2) return 2;
-		if (P1.getWinner() == 1 || P2.getWinner() == 1) return 1;
+		if((p1winner == 2 && p2winner == 1) || (p1winner == 1 && p2winner == 2)) return 0;
+		if (p1winner == 2 || p2winner == 2) return 2;
+		if (p1winner == 1 || p2winner == 1) return 1;
 		return 0;
 	}
 	
