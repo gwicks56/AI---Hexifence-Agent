@@ -136,7 +136,6 @@ public class MoveFinder implements IMoveFinder {
             if (size < minSize) {
                 minSize = size;
                 smallestChain = e.getKey();
-                
             }
             if(size == 1) chain1Count++;
             if(size == 2) chain2Count++;
