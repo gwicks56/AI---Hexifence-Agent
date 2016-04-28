@@ -12,7 +12,7 @@ public class GWMSK implements Player, Piece {
     private int myColour;
     private int opColour;
     private int maxScore;
-    private MoveFinder moveFinder;
+    private IMoveFinder moveFinder;
 
 
     

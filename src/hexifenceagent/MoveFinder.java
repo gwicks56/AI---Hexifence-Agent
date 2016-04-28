@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
 
-public class MoveFinder {
+public class MoveFinder implements IMoveFinder {
     private HashMap<ArrayList<Hexagon>, Integer> Chains;
     private Random random;
     
