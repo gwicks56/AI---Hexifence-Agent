@@ -5,31 +5,24 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-import java.util.Set;
 
 public class MoveFinder implements IMoveFinder {
     private HashMap<ArrayList<Hexagon>, Integer> Chains;
-    private ArrayList<ArrayList<Edge>> HalfClosedChains;
-    
+    private ArrayList<ArrayList<Edge>> DoubleDeals;  
     private Random random;
-    
     private Game game;
     private HashMap<Point, Hexagon> Hexagons;
     private HashMap<Point, Edge> Edges;
     
-    private int myColour;
-    private int opColour;
     
-    public MoveFinder(Game game, int myColour, int opColour) {
+    public MoveFinder(Game game) {
         this.game = game;
         Hexagons = game.getHexagons();
-        Edges = game.getEdges();
-        
+        Edges = game.getEdges();    
         random = new Random();  
         Chains = new HashMap<ArrayList<Hexagon>, Integer>();
-        HalfClosedChains = new ArrayList<ArrayList<Edge>>();
-        this.myColour = myColour;
-        this.opColour = opColour;
+        DoubleDeals = new ArrayList<ArrayList<Edge>>();
+
     }
     
     
@@ -39,46 +32,99 @@ public class MoveFinder implements IMoveFinder {
         ArrayList<Edge> captureMoves = new ArrayList<Edge>();
 
         
-        // Generates a list of safe moves which won't enable
-        // opponent to capture a hexagon
+        // Generates safe(non-capturable), unsafe and capture moves
         for (Edge edge: Edges.values()) {
             if(edge.isMarked()) continue;
             boolean isSafe = true;
             
             // Determine if the move is safe or not
             for(Hexagon parent: edge.getParents()) {
+                // Edge with a parent of 5 sides can be captured
                 if(parent.getSidesTaken() == 5) {
                     isSafe = false;
                     captureMoves.add(edge);
                     break;
                 }
+                // Edge with a parent of 4 sides is unsafe as 
+                // opponent can capture it
                 if (parent.getSidesTaken() == 4) {
                     isSafe = false;
                     unsafeMoves.add(edge);
                     break;
                 }
             }
+            // If neither unsafe nor can it be capture, its safe
             if(isSafe) {
                 safeMoves.add(edge);
             }
         }
         
+        
+        // When there are safe moves and but no capture moves
         if(!safeMoves.isEmpty() && captureMoves.isEmpty()) {
-            // Select a safe move randomly if possible
+            // Select a safe move randomly
             int index = random.nextInt(safeMoves.size());
             return safeMoves.get(index);
         }
         
+        // When there are safe moves and moves you can capture
+        // Then capture them as you can land a safe move to end turn
         if(!safeMoves.isEmpty() && !captureMoves.isEmpty()) {
-            // Select a capture move randomly if there is at least one capture move and one safe move
+            // Select a capture move randomly
             int index = random.nextInt(captureMoves.size());
             return captureMoves.get(index);
         }
         
-        findChains();
-        findHalfClosedChains();
-        System.out.println("HC SIZE: " + HalfClosedChains.size());
+        /* ALL MOVES ARE UNSAFE FROM THIS POINT */
+        
+        // FIND OPEN-CHAINS (SERIES OF SHARED 4-SIDES CAPTURED HEXAGONS)
+        findChains();  
+        // FIND DOUBLE DEALS (HALF-CLOSED CHAINS OF STRICTLY LENGTH 2 
+        // (5-SIDE CAPTURED HEXAGON SHARED WITH 4 SIDE-CAPTURED HEXAGON)
+        // THE LATTER HEXAGON IS NOT SHARED WITH A 4-SIDE-CAPTURED HEXAGON
+        findDoubleDeals(); 
+        
+        System.out.println("HC SIZE: " + DoubleDeals.size());
        
+        // If there are no double dealing moves but there are moved that can 
+        // be captured, then capture it.
+        if(DoubleDeals.isEmpty() && !captureMoves.isEmpty()) {
+            int index = random.nextInt(captureMoves.size());
+            return captureMoves.get(index);
+        }
+        
+        // If there are 2 or more double dealing moves and a capture move, then
+        // capture it as we will still have a double dealer to make use of later
+        if(DoubleDeals.size() >= 2 && !captureMoves.isEmpty()) {
+                int index = random.nextInt(captureMoves.size());
+                return captureMoves.get(index);
+        }
+        
+        // If there is a capture move that is not part of the single double deal
+        // chain of moves, then capture it as it won't affect the double deal chain
+        ArrayList<Edge> captureMovesNonDD = new ArrayList<Edge>();
+        if(DoubleDeals.size() == 1 && !captureMoves.isEmpty()) {
+            ArrayList<Edge> chain = DoubleDeals.get(0);
+            for(Edge edge : captureMoves) {
+                boolean notDD = true;
+                for(Edge chainEdge : chain) {
+                    if(chainEdge != edge) {
+                        notDD = false;
+                        break;
+                    }
+                }
+                if(notDD) {
+                    captureMovesNonDD.add(edge);
+                }
+            }
+            if(!captureMovesNonDD.isEmpty()) {
+                int index = random.nextInt(captureMovesNonDD.size());
+                return captureMovesNonDD.get(index);
+            }
+        }
+        
+        // Find the lengths of OPEN chains of different sizes and
+        // Find the smallest chain
         int chain1Count = 0;
         int chain2Count = 0;
         int chain3Count = 0; /* chain of size 3 or more */
@@ -96,59 +142,23 @@ public class MoveFinder implements IMoveFinder {
             if(size == 2) chain2Count++;
             if(size >= 3) chain3Count++;
         }
-//        System.out.println("CHAIN 1: " + chain1Count);
-//        System.out.println("CHAIN 2: " + chain2Count);
-//        System.out.println("CHAIN 3: " + chain3Count);
-        
-        
-        
-        if(HalfClosedChains.isEmpty() && !captureMoves.isEmpty()) {
-            int index = random.nextInt(captureMoves.size());
-            return captureMoves.get(index);
-        }
-        
-        if(HalfClosedChains.size() >= 2 && !captureMoves.isEmpty()) {
-                int index = random.nextInt(captureMoves.size());
-                return captureMoves.get(index);
-        }
-        
-        ArrayList<Edge> captureMovesNotInHCC = new ArrayList<Edge>();
-        if(HalfClosedChains.size() == 1 && !captureMoves.isEmpty()) {
-            ArrayList<Edge> chain = HalfClosedChains.get(0);
-            for(Edge edge : captureMoves) {
-                boolean notInHCC = true;
-                for(Edge chainEdge : chain) {
-                    if(chainEdge != edge) {
-                        notInHCC = false;
-                        break;
-                    }
-                }
-                if(notInHCC) {
-                    captureMovesNotInHCC.add(edge);
-                }
-            }
-            if(!captureMovesNotInHCC.isEmpty()) {
-                int index = random.nextInt(captureMovesNotInHCC.size());
-                return captureMovesNotInHCC.get(index);
-            }
-        }
-        
-        // Sacrifice a half-closed-chain when there is a long chain and there are odd number or 0 number of shorter chains
-        // so that opponent opens up a long chain
+
+        // Offer a double-deal (sacrifice) when there is a long chain 
+        // and there are odd number or 0 number of shorter chains (size 1 or 2)
+        // so that opponent opens up a long chain for you to capture
         int otherChainCount = chain1Count + chain2Count;
-        if(!HalfClosedChains.isEmpty() && chain3Count > 0 && ((otherChainCount == 0) || (otherChainCount % 2 != 0)) ) {
+        if(!DoubleDeals.isEmpty() && chain3Count > 0 && ((otherChainCount == 0) || (otherChainCount % 2 != 0)) ) {
             System.out.println("##################################################SACRIFICE");
-            return HalfClosedChains.get(0).get(1);    
+            return DoubleDeals.get(0).get(1);    
         }
 
-       
+        // If we still couldn't find a move but we have moves we can capture, then capture it
         if(!captureMoves.isEmpty()) {
             int index = random.nextInt(captureMoves.size());
             return captureMoves.get(index);
         }
        
-        if(!unsafeMoves.isEmpty()) {
-            
+        if(!unsafeMoves.isEmpty()) {          
             if(smallestChain != null) {
                 Hexagon hexagon = smallestChain.get(0);
                 for(Edge edge : hexagon.getEdges()) {
@@ -158,7 +168,9 @@ public class MoveFinder implements IMoveFinder {
                 }
                 
             }
-            // Select a safe move randomly if possible
+            // Select unsafe move randomly if possible (if there is no shortest chain to open)
+            // This won't happen as all unsafe moves has to be a chain length of 1 at least
+            // But just putting it there in case there is an error in finding smallest chain
             int index = random.nextInt(unsafeMoves.size());
             return unsafeMoves.get(index);
         }
@@ -167,8 +179,8 @@ public class MoveFinder implements IMoveFinder {
     }
     
     
-    public void findHalfClosedChains() {
-        HalfClosedChains.clear();
+    public void findDoubleDeals() {
+        DoubleDeals.clear();
         for(Hexagon hexagon: Hexagons.values()) {
             if(hexagon.getSidesTaken() != 5) continue;
             ArrayList<Edge> chain = new ArrayList<Edge>();
@@ -192,7 +204,7 @@ public class MoveFinder implements IMoveFinder {
             
             parent = current.getOtherParent(parent);
             if (parent == null  || parent.getSidesTaken() < 4) {
-                HalfClosedChains.add(chain);
+                DoubleDeals.add(chain);
                 System.out.println("FOUND");
             } 
         }
@@ -200,9 +212,6 @@ public class MoveFinder implements IMoveFinder {
     }
 
         
-     
-    
-    
     public void findChains() {
         Chains.clear();
         for(Hexagon hexagon: Hexagons.values()) {

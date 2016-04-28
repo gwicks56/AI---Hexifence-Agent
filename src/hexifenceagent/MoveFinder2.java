@@ -1,30 +1,17 @@
 package hexifenceagent;
 
-import java.awt.Point;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Random;
 
 public class MoveFinder2 implements IMoveFinder {
-    private HashMap<ArrayList<Hexagon>, Integer> Chains;
-    private Random random;
-    
+
+    private Random random;    
     private Game game;
-    private HashMap<Point, Hexagon> Hexagons;
-    private HashMap<Point, Edge> Edges;
-    
-    private int myColour;
-    private int opColour;
-    
-    public MoveFinder2(Game game, int myColour, int opColour) {
-        this.game = game;
-        Hexagons = game.getHexagons();
-        Edges = game.getEdges();
-        
+
+    public MoveFinder2(Game game) {
+        this.game = game;     
         random = new Random();  
-        Chains = new HashMap<ArrayList<Hexagon>, Integer>();
-        this.myColour = myColour;
-        this.opColour = opColour;
+
     }
     
     
