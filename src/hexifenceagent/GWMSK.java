@@ -76,7 +76,7 @@ public class GWMSK implements Player, Piece {
         int totalScore = myScore + opScore;
         
         if(totalScore == maxScore) {
-            System.out.println("PLAYER SCORE: " + myScore + "  OPPONENT SCORE: " + opScore);
+            System.out.println("PLAYER" + myColour + " SCORE: " + myScore + " PLAYER" + opColour + " SCORE: " + opScore);
             if(myScore > opScore) {
                 return myColour;
             }
