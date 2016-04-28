@@ -20,23 +20,23 @@ public class Referee implements Piece{
 	/*
 	 * Input arguments: first board size, second path of player1 and third path of player2
 	 */
-	public static void main(String[] args)
+	public static int result(String n, String p1, String p2)
 	{
 		lastPlayedMove = new Move();
 		int NumberofMoves = 0;
-		int boardEmptyPieces=(Integer.valueOf(args[0])*42)-54;
+		int boardEmptyPieces=(Integer.valueOf(n)*42)-54;
 		System.out.println("Referee started !");
 		try{
-			P1 = (Player)(Class.forName(args[1]).newInstance());
-			P2 = (Player)(Class.forName(args[2]).newInstance());
+			P1 = (Player)(Class.forName(p1).newInstance());
+			P2 = (Player)(Class.forName(p2).newInstance());
 		}
 		catch(Exception e){
 			System.out.println("Error "+ e.getMessage());
 			System.exit(1);
 		}
 		
-		P1.init(Integer.valueOf(args[0]), BLUE);
-		P2.init(Integer.valueOf(args[0]), RED);
+		P1.init(Integer.valueOf(n), BLUE);
+		P2.init(Integer.valueOf(n), RED);
 		
 		int turn=1;
 		
@@ -113,6 +113,10 @@ public class Referee implements Piece{
 		System.out.println("Player two (RED) indicate winner as: "+ P2.getWinner());
 		System.out.println("Total Number of Moves Played in the Game: "+ NumberofMoves);
 		System.out.println("Referee Finished !");
+		
+		if (P1.getWinner() == 2 || P2.getWinner() == 2) return 2;
+		if (P1.getWinner() == 1 || P2.getWinner() == 1) return 1;
+		return 0;
 	}
 	
 
