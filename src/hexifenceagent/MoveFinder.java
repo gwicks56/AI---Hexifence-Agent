@@ -63,16 +63,13 @@ public class MoveFinder implements IMoveFinder {
         // When there are safe moves and but no capture moves
         if(!safeMoves.isEmpty() && captureMoves.isEmpty()) {
             // Select a safe move randomly
-            int index = random.nextInt(safeMoves.size());
-            return safeMoves.get(index);
+            return selectRandomly(safeMoves);
         }
         
         // When there are safe moves and moves you can capture
         // Then capture them as you can land a safe move to end turn
         if(!safeMoves.isEmpty() && !captureMoves.isEmpty()) {
-            // Select a capture move randomly
-            int index = random.nextInt(captureMoves.size());
-            return captureMoves.get(index);
+            return selectRandomly(captureMoves);
         }
         
         /* ALL MOVES ARE UNSAFE FROM THIS POINT */
@@ -86,18 +83,11 @@ public class MoveFinder implements IMoveFinder {
         
         System.out.println("HC SIZE: " + DoubleDeals.size());
        
-        // If there are no double dealing moves but there are moved that can 
-        // be captured, then capture it.
-        if(DoubleDeals.isEmpty() && !captureMoves.isEmpty()) {
-            int index = random.nextInt(captureMoves.size());
-            return captureMoves.get(index);
-        }
-        
-        // If there are 2 or more double dealing moves and a capture move, then
+
+        // If there are 0 or 2 or more double dealing moves and a capture move, then
         // capture it as we will still have a double dealer to make use of later
-        if(DoubleDeals.size() >= 2 && !captureMoves.isEmpty()) {
-                int index = random.nextInt(captureMoves.size());
-                return captureMoves.get(index);
+        if((DoubleDeals.isEmpty() || DoubleDeals.size() >= 2) && !captureMoves.isEmpty()) {
+            return selectRandomly(captureMoves);
         }
         
         // If there is a capture move that is not part of the single double deal
@@ -118,21 +108,20 @@ public class MoveFinder implements IMoveFinder {
                 }
             }
             if(!captureMovesNonDD.isEmpty()) {
-                int index = random.nextInt(captureMovesNonDD.size());
-                return captureMovesNonDD.get(index);
+                return selectRandomly(captureMovesNonDD);
             }
         }
         
         // Find the lengths of OPEN chains of different sizes and
         // Find the smallest chain
-        int chain1Count = 0;
-        int chain2Count = 0;
-        int chain3Count = 0; /* chain of size 3 or more */
+        int chain1Count = 0; /* count of open-chains of size 1 (just 1 hexagon) */
+        int chain2Count = 0; /* count of open-chains of size 2 */
+        int chain3Count = 0; /* count of long open-chains of size 3 or more */
+        
         ArrayList<Hexagon> smallestChain = null;
         int minSize = Integer.MAX_VALUE;
         for(Map.Entry<ArrayList<Hexagon>,Integer> e : Chains.entrySet()) {
-           int size = e.getValue();
-           System.out.println("CHAIN SIZE: " + size);
+            int size = e.getValue();
             if (size < minSize) {
                 minSize = size;
                 smallestChain = e.getKey();
@@ -143,18 +132,17 @@ public class MoveFinder implements IMoveFinder {
         }
 
         // Offer a double-deal (sacrifice) when there is a long chain 
-        // and there are odd number or 0 number of shorter chains (size 1 or 2)
-        // so that opponent opens up a long chain for you to capture
+        // and there are even number of short chains (size 1 or 2)
+        // so that opponent opens up long chain(s) for you to capture later
         int otherChainCount = chain1Count + chain2Count;
-        if(!DoubleDeals.isEmpty() && chain3Count > 0 && ((otherChainCount == 0) || (otherChainCount % 2 != 0)) ) {
+        if(!DoubleDeals.isEmpty() && chain3Count > 0 && (otherChainCount % 2 == 0)) {
             System.out.println("##################################################SACRIFICE");
             return DoubleDeals.get(0).get(1);    
         }
 
-        // If we still couldn't find a move but we have moves we can capture, then capture it
+        // If we decided not to sacrifice the double deal move then we capture them
         if(!captureMoves.isEmpty()) {
-            int index = random.nextInt(captureMoves.size());
-            return captureMoves.get(index);
+            return selectRandomly(captureMoves);
         }
        
         if(!unsafeMoves.isEmpty()) {          
@@ -170,13 +158,12 @@ public class MoveFinder implements IMoveFinder {
             // Select unsafe move randomly if possible (if there is no shortest chain to open)
             // This won't happen as all unsafe moves has to be a chain length of 1 at least
             // But just putting it there in case there is an error in finding smallest chain
-            int index = random.nextInt(unsafeMoves.size());
-            return unsafeMoves.get(index);
+            return selectRandomly(unsafeMoves);
         }
         System.out.println("NO MOVES ERROR");
         return null;
     }
-    
+        
     
     public void findDoubleDeals() {
         DoubleDeals.clear();
@@ -242,5 +229,10 @@ public class MoveFinder implements IMoveFinder {
                 }
             }
         }
+    }
+    
+    public Edge selectRandomly(ArrayList<Edge> edges) {
+        int index = random.nextInt(edges.size());
+        return edges.get(index);
     }
 }
