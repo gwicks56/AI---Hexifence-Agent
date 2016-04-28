@@ -77,7 +77,7 @@ public class MoveFinder implements IMoveFinder {
         
         findChains();
         findHalfClosedChains();
-       
+        System.out.println("HC SIZE: " + HalfClosedChains.size());
        
         int chain1Count = 0;
         int chain2Count = 0;
@@ -100,32 +100,49 @@ public class MoveFinder implements IMoveFinder {
 //        System.out.println("CHAIN 2: " + chain2Count);
 //        System.out.println("CHAIN 3: " + chain3Count);
         
-        System.out.println("HC SIZE: " + HalfClosedChains.size());
+        
         
         if(HalfClosedChains.isEmpty() && !captureMoves.isEmpty()) {
             int index = random.nextInt(captureMoves.size());
             return captureMoves.get(index);
         }
         
-        // TO:DO have to capture moves greedily when no safe move and there is one capturable move not part of half-chain
-        
-        /*if(HalfClosedChains.size() >= 2 && !captureMoves.isEmpty()) {
-            if(!captureMoves.isEmpty()) {
-                // Select a capture move randomly if there is at least one capture move and one safe move
+        if(HalfClosedChains.size() >= 2 && !captureMoves.isEmpty()) {
                 int index = random.nextInt(captureMoves.size());
                 return captureMoves.get(index);
-            }
-        } */
+        }
         
-        // Sacrifice
-        if(!HalfClosedChains.isEmpty()) {
+        ArrayList<Edge> captureMovesNotInHCC = new ArrayList<Edge>();
+        if(HalfClosedChains.size() == 1 && !captureMoves.isEmpty()) {
+            ArrayList<Edge> chain = HalfClosedChains.get(0);
+            for(Edge edge : captureMoves) {
+                boolean notInHCC = true;
+                for(Edge chainEdge : chain) {
+                    if(chainEdge != edge) {
+                        notInHCC = false;
+                        break;
+                    }
+                }
+                if(notInHCC) {
+                    captureMovesNotInHCC.add(edge);
+                }
+            }
+            if(!captureMovesNotInHCC.isEmpty()) {
+                int index = random.nextInt(captureMovesNotInHCC.size());
+                return captureMovesNotInHCC.get(index);
+            }
+        }
+        
+        // Sacrifice a half-closed-chain when there is a long chain and there are odd number or 0 number of shorter chains
+        // so that opponent opens up a long chain
+        int otherChainCount = chain1Count + chain2Count;
+        if(!HalfClosedChains.isEmpty() && chain3Count > 0 && ((otherChainCount == 0) || (otherChainCount % 2 != 0)) ) {
             System.out.println("##################################################SACRIFICE");
             return HalfClosedChains.get(0).get(1);    
         }
 
        
         if(!captureMoves.isEmpty()) {
-            // Select a capture move randomly if there is at least one capture move and one safe move
             int index = random.nextInt(captureMoves.size());
             return captureMoves.get(index);
         }
@@ -153,35 +170,27 @@ public class MoveFinder implements IMoveFinder {
     public void findHalfClosedChains() {
         HalfClosedChains.clear();
         for(Hexagon hexagon: Hexagons.values()) {
-            
-            System.out.println("check hex");
             if(hexagon.getSidesTaken() != 5) continue;
             ArrayList<Edge> chain = new ArrayList<Edge>();
             Edge current = null;
             for(Edge edge : hexagon.getEdges()) {
-                System.out.println("check edge");
-
                 if(!edge.isMarked()) {
                     current = edge;
                     chain.add(edge);
                 }
             }
             Hexagon parent = current.getOtherParent(hexagon);
-            System.out.println("check parent1");
 
             if(parent == null || parent.getSidesTaken() != 4) continue;
             
             for(Edge edge: parent.getEdges()) {
-                System.out.println("check parent1 edge");
-
-                if(!edge.isMarked() && !edge.getPosition().equals(current.getPosition())) {
+                if(!edge.isMarked() && edge != current) {
                     current = edge;
                     chain.add(edge);
                 }
             }
             
-            parent = current.getOtherParent(hexagon);
-            System.out.println("check parent2");
+            parent = current.getOtherParent(parent);
             if (parent == null  || parent.getSidesTaken() < 4) {
                 HalfClosedChains.add(chain);
                 System.out.println("FOUND");
