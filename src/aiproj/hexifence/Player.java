@@ -10,7 +10,7 @@ import java.io.PrintStream;
  */
 public interface Player{
 	
-	/* This funstion is called by the referee to initialise the player.
+	/* This function is called by the referee to initialise the player.
 	 *  Return 0 for successful initialization and -1 for failed one.
 	 */
 	

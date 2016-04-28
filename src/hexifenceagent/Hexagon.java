@@ -19,6 +19,7 @@ public class Hexagon {
 	private ArrayList<Edge> edges; // List of edges from top-right edge going clockwise
 	private Point position; // the position of the centre of the hexagon
 	private int sidesTaken; // the number of edges captured by player
+	private int colour; // colour after being captured
 	private boolean visited; //
 	
 	public Hexagon(Point position){
@@ -83,6 +84,14 @@ public class Hexagon {
 	public void setVisited(boolean visited) {
 		this.visited = visited;
 	}
+
+    public int getColour() {
+        return colour;
+    }
+
+    public void setColour(int colour) {
+        this.colour = colour;
+    }
 	
 	
 }
