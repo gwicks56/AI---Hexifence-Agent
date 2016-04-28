@@ -114,7 +114,7 @@ public class Edge {
 				return p;
 			}
 		}
-		return parent;
+		return null;
 	}
 	
 	
