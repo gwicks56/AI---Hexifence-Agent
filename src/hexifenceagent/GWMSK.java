@@ -4,9 +4,6 @@ import aiproj.hexifence.*;
 
 import java.awt.Point;
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Random;
 
 
 public class GWMSK implements Player, Piece {
@@ -15,10 +12,9 @@ public class GWMSK implements Player, Piece {
     private int myColour;
     private int opColour;
     private int maxScore;
-    private HashMap<Point, Hexagon> Hexagons;
-    private HashMap<Point, Edge> Edges;
-    private HashMap<ArrayList<Hexagon>, Integer> Chains;
-    private Random random;
+    private MoveFinder moveFinder;
+
+
     
     @Override
     public int init(int n, int p) {
@@ -29,16 +25,9 @@ public class GWMSK implements Player, Piece {
         // Initialise the internal game configuration
         try {
             game = new Game(n);
-            Hexagons = game.getHexagons();
-            Edges = game.getEdges();
         } catch (Exception e) {
             return -1;
         }
-        
-        random = new Random();  
-        Chains = new HashMap<ArrayList<Hexagon>, Integer>();
-        
-        
         
         // Set the colour of the player and the opponent
         myColour = p;
@@ -48,15 +37,15 @@ public class GWMSK implements Player, Piece {
         else {
             opColour = RED;
         }
-        maxScore = Hexagons.size();
-        
+        maxScore = game.getHexagons().size();
+        moveFinder = new MoveFinder(game, myColour, opColour);
         return 0;
     }
 
     @Override
     public Move makeMove() {
         // Find a move
-        Edge edge = findMove();
+        Edge edge = moveFinder.findMove();
         // Make the move internally
         game.makeMove(edge, myColour);
         // Get position of the move
@@ -74,7 +63,7 @@ public class GWMSK implements Player, Piece {
         // Find position of opponent move
         Point pos = new Point(m.Col, m.Row);
         // Make the move internally
-        int status = game.makeMove(Edges.get(pos), opColour);
+        int status = game.makeMove(game.getEdges().get(pos), opColour);
         // Return the status of the move
         return status;
     }
@@ -110,84 +99,5 @@ public class GWMSK implements Player, Piece {
         game.printBoard(output);
     }
     
-    
-    public Edge findMove() {
-        ArrayList<Edge> safeMoves = new ArrayList<Edge>();
-        ArrayList<Edge> unsafeMoves = new ArrayList<Edge>();
-        // Tries to find any hexagon which is possible to capture
-        for(Hexagon hexagon: Hexagons.values()) {
-            if(hexagon.getSidesTaken() == 5)
-                for(Edge edge: hexagon.getEdges()) {
-                    if(!edge.isMarked()) {
-                        return edge;
-                    }
-                }
-        }
-        // Generates a list of safe moves which won't enable
-        // opponent to capture a hexagon
-
-        for (Edge edge: Edges.values()) {
-            if(edge.isMarked()) continue;
-            boolean isSafe = true;
-            
-            // Determine if the move is safe or not
-            for(Hexagon parent: edge.getParents()) {
-                if (parent.getSidesTaken() == 4) {
-                    isSafe = false;
-                    unsafeMoves.add(edge);
-                    break;
-                }
-            }
-            if(isSafe) {
-                safeMoves.add(edge);
-            }
-        }
-        if(!safeMoves.isEmpty()) {
-            // Select a safe move randomly if possible
-            int index = random.nextInt(safeMoves.size());
-            return safeMoves.get(index);
-        }
-        if(!unsafeMoves.isEmpty()) {
-            // Select a safe move randomly if possible
-            int index = random.nextInt(unsafeMoves.size());
-            return unsafeMoves.get(index);
-        }
-        System.out.println("NO MOVES ERROR");
-        return null;
-    }
-    
-    
-    public void findChains() {
-        Chains.clear();
-        for(Hexagon hexagon: Hexagons.values()) {
-            hexagon.setVisited(false);
-        }
-        
-        for(Hexagon hexagon: Hexagons.values()) {
-            ArrayList<Hexagon> chain = new ArrayList<Hexagon>();
-            FindChains(hexagon, chain);
-            int chainSize = chain.size();
-            if(chainSize > 0) {
-                Chains.put(chain, chainSize);
-            }
-        }
-    }
-    
-    public void FindChains(Hexagon current, ArrayList<Hexagon> chain) {
-        if(!current.isVisited()) return;
-        current.setVisited(true);
-        if(current.getSidesTaken() == 4) {
-            chain.add(current);
-            for(Edge edge: current.getEdges()) {
-                if(!edge.isMarked() && edge.isShared()) {
-                    Hexagon adjacent = edge.getOtherParent(current);
-                    if(adjacent.getSidesTaken() == 4) {
-                        chain.add(adjacent);
-                        FindChains(current, chain); //REC STARTS
-                    }
-                }
-            }
-        }
-    }
     
 }
