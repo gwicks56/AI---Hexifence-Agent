@@ -90,14 +90,14 @@ public class MoveFinder implements IMoveFinder {
         if(DoubleDeals.size() == 1 && !captureMoves.isEmpty()) {
             ArrayList<Edge> chain = DoubleDeals.get(0);
             for(Edge edge : captureMoves) {
-                boolean notDD = true;
+                boolean isDD = false;
                 for(Edge chainEdge : chain) {
-                    if(chainEdge != edge) {
-                        notDD = false;
+                    if(chainEdge == edge) {
+                        isDD = true;
                         break;
                     }
                 }
-                if(notDD) {
+                if(!isDD) {
                     captureMovesNonDD.add(edge);
                 }
             }

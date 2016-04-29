@@ -8,9 +8,8 @@ package aiproj.hexifence.mskgw;
 import java.awt.Point;
 import java.io.PrintStream;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Iterator;
+
 
 /*
 * This is the entry point of hexifence game
@@ -186,7 +185,7 @@ public class Game {
         int size = 4 * dimension - 1;
         for(int y = 0; y < size; y++) {
             for(int x = 0; x < size; x++) {
-                output.print(board[x][y]);
+                output.print(board[x][y] + " ");
             }
             output.println();
         }
