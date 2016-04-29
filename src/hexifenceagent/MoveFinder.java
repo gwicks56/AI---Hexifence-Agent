@@ -28,7 +28,6 @@ public class MoveFinder implements IMoveFinder {
     
     public Edge findMove() {
         ArrayList<Edge> safeMoves = new ArrayList<Edge>();
-        ArrayList<Edge> unsafeMoves = new ArrayList<Edge>();
         ArrayList<Edge> captureMoves = new ArrayList<Edge>();
         
         // Generates safe(non-capturable), unsafe and capture moves
@@ -48,7 +47,6 @@ public class MoveFinder implements IMoveFinder {
                 // opponent can capture it
                 if (parent.getSidesTaken() == 4) {
                     isSafe = false;
-                    unsafeMoves.add(edge);
                     break;
                 }
             }
@@ -71,7 +69,7 @@ public class MoveFinder implements IMoveFinder {
             return selectRandomly(captureMoves);
         }
         
-        /* ALL MOVES ARE UNSAFE FROM THIS POINT */
+        /* ALL MOVES ARE NON-SAFE FROM THIS POINT (UNSAFE OR CAPTURABLE) */
         
         // FIND OPEN-CHAINS (SERIES OF SHARED 4-SIDES CAPTURED HEXAGONS)
         findChains();  
@@ -79,9 +77,6 @@ public class MoveFinder implements IMoveFinder {
         // (5-SIDE CAPTURED HEXAGON SHARED WITH 4 SIDE-CAPTURED HEXAGON)
         // THE LATTER HEXAGON IS NOT SHARED WITH A 4-SIDE-CAPTURED HEXAGON
         findDoubleDeals(); 
-        
-        System.out.println("HC SIZE: " + DoubleDeals.size());
-       
 
         // If there are 0 or 2 or more double dealing moves and a capture move, then
         // capture it as we will still have a double dealer to make use of later
@@ -143,23 +138,16 @@ public class MoveFinder implements IMoveFinder {
         if(!captureMoves.isEmpty()) {
             return selectRandomly(captureMoves);
         }
-       
-        if(!unsafeMoves.isEmpty()) {          
-            if(smallestChain != null) {
-                Hexagon hexagon = smallestChain.get(0);
-                for(Edge edge : hexagon.getEdges()) {
-                    if(!edge.isMarked()) {
-                        return edge;
-                    }
-                }
-                
+        
+        // If there is no other option, open up the smallest chain
+        Hexagon hexagon = smallestChain.get(0);
+        for(Edge edge : hexagon.getEdges()) {
+            if(!edge.isMarked()) {
+                return edge;
             }
-            // Select unsafe move randomly if possible (if there is no shortest chain to open)
-            // This won't happen as all unsafe moves has to be a chain length of 1 at least
-            // But just putting it there in case there is an error in finding smallest chain
-            return selectRandomly(unsafeMoves);
         }
-        System.out.println("NO MOVES ERROR");
+  
+        System.out.println("ERROR: NO MOVE");
         return null;
     }
         

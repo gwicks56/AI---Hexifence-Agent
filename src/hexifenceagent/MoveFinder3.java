@@ -27,7 +27,6 @@ public class MoveFinder3 implements IMoveFinder {
     
     public Edge findMove() {
         ArrayList<Edge> safeMoves = new ArrayList<Edge>();
-        ArrayList<Edge> unsafeMoves = new ArrayList<Edge>();
         // Tries to find any hexagon which is possible to capture
         for(Hexagon hexagon: game.getHexagons().values()) {
             if(hexagon.getSidesTaken() == 5)
@@ -48,7 +47,6 @@ public class MoveFinder3 implements IMoveFinder {
             for(Hexagon parent: edge.getParents()) {
                 if (parent.getSidesTaken() == 4) {
                     isSafe = false;
-                    unsafeMoves.add(edge);
                     break;
                 }
             }
@@ -76,22 +74,14 @@ public class MoveFinder3 implements IMoveFinder {
                 smallestChain = e.getKey();
             }
         }
-       
-        if(!unsafeMoves.isEmpty()) {          
-            if(smallestChain != null) {
-                Hexagon hexagon = smallestChain.get(0);
-                for(Edge edge : hexagon.getEdges()) {
-                    if(!edge.isMarked()) {
-                        return edge;
-                    }
-                }
-                
+
+        Hexagon hexagon = smallestChain.get(0);
+        for(Edge edge : hexagon.getEdges()) {
+            if(!edge.isMarked()) {
+                return edge;
             }
-            // Select unsafe move randomly if possible (if there is no shortest chain to open)
-            // This won't happen as all unsafe moves has to be a chain length of 1 at least
-            // But just putting it there in case there is an error in finding smallest chain
-            return selectRandomly(unsafeMoves);
         }
+        
         System.out.println("NO MOVES ERROR");
         return null;
     }
