@@ -22,8 +22,8 @@ public class Game {
     private char[][] board;
     /* Board dimension */
     private int dimension;
-    /* Collection of the positions of centres of hexagons, mapped by dimension (n = 2 or 3) */
-	private HashMap<Integer, ArrayList<Point>> info = new HashMap<Integer, ArrayList<Point>>();
+    /* Collection of the positions of centres of hexagons, mapped by dimension (n = 2 or 3) 
+	private HashMap<Integer, ArrayList<Point>> info = new HashMap<Integer, ArrayList<Point>>();*/
 	/* Collection of all hexagons where its mapped by its position */
 	private HashMap<Point, Hexagon> Hexagons;
 	/* Collection of all edges where its mapped by its position  */
@@ -43,9 +43,9 @@ public class Game {
 		
 		/* Save what we know about the positions of the hexagons depending
 		 * on whether n = 2 or 3.
-		 * Hard-coded the values rather than using a loop, as we know n=2 or n=3 it should offer a 
-		 * small performance improvement
-		 */
+		 * Hard-coded the values rather than using a loop, as we know n=2 or n=3
+		 
+		 
 		info.put(2, new ArrayList<Point>(Arrays.asList(new Point(1,1), new Point(3,1), 
 				new Point(1,3), new Point(3,3), new Point(5,3), 
 				new Point(3,5), new Point(5,5))));
@@ -55,7 +55,7 @@ public class Game {
 				new Point(1,5), new Point(3,5), new Point(5,5), new Point(7,5), new Point(9,5),
 				new Point(3,7), new Point(5,7), new Point(7,7), new Point(9,7),
 				new Point(5,9), new Point(7,9), new Point(9,9)))); // points need to be verified
-		
+		*/
 		/* 2d char array for storing the text map of the game board */
 		dimension = n;
 		int size = 4 * dimension - 1;
@@ -67,43 +67,43 @@ public class Game {
 		}
 
 		/*
-		 * For each hexagon, all six 6 edges with its details are created and added to hexagon data structure.
+		 * Each hexagon is created from the generated list of the centres of hexagons.
+		 * All six 6 edges with its details are created and added to hexagon data structure.
 		 * The hexagons and the edges are added to their respective hash maps.
-		 *  Again we hardcode the values rather than using a loop, in the hope of minor performance gains
 		 */
-		Iterator<Point> hexPointIt = info.get(n).iterator();		
-		while(hexPointIt.hasNext()) {
-			Point hexPoint = hexPointIt.next();
-			Hexagon hexagon = new Hexagon(hexPoint);
+		
+		ArrayList<Point> centres = GenerateHexagonCentres(dimension);		
+		for(Point centre : centres) {
+			Hexagon hexagon = new Hexagon(centre);
 			
 			Edge edge;
 			int index = 0;
 			// Moving clockwise from top-right edge
-			Point edgePos = new Point(hexPoint.x, hexPoint.y-1);
+			Point edgePos = new Point(centre.x, centre.y-1);
 			edge = AddEdge(hexagon, edgePos);
 			hexagon.addEdge(index++, edge);
 			
-			edgePos = new Point(hexPoint.x+1,hexPoint.y);
+			edgePos = new Point(centre.x+1,centre.y);
 			edge = AddEdge(hexagon, edgePos);
 			hexagon.addEdge(index++, edge);
 			
-			edgePos = new Point(hexPoint.x+1,hexPoint.y+1);
+			edgePos = new Point(centre.x+1,centre.y+1);
 			edge = AddEdge(hexagon, edgePos);
 			hexagon.addEdge(index++, edge);
 			
-			edgePos = new Point(hexPoint.x,hexPoint.y+1);
+			edgePos = new Point(centre.x,centre.y+1);
 			edge = AddEdge(hexagon, edgePos);
 			hexagon.addEdge(index++, edge);
 			
-			edgePos = new Point(hexPoint.x-1,hexPoint.y);
+			edgePos = new Point(centre.x-1,centre.y);
 			edge = AddEdge(hexagon, edgePos);
 			hexagon.addEdge(index++, edge);
 			
-			edgePos = new Point(hexPoint.x-1,hexPoint.y-1);
+			edgePos = new Point(centre.x-1,centre.y-1);
 			edge = AddEdge(hexagon, edgePos);
 			hexagon.addEdge(index++, edge);
 			
-			Hexagons.put(hexPoint, hexagon);
+			Hexagons.put(centre, hexagon);
 			
 		}
 		
@@ -206,7 +206,42 @@ public class Game {
         return Edges;
     }
 
-	
+    /* This generates a list of coordinates of the hexagon
+     * centres in the board of a given dimension.
+     */
+	public static ArrayList<Point> GenerateHexagonCentres(int n) {
+	    int perRow = n;
+	    int currentPerRow = n;
+	    ArrayList<Point> centres = new ArrayList<Point>();
+	    
+	    // First n rows moving left and down from top-right corner
+	    for(int y = 1; y < 2*n; y += 2) {
+	        currentPerRow = perRow;
+	        for(int x = 1; x < 4*n - 1; x += 2) {
+	            if(currentPerRow > 0) {
+	                centres.add(new Point(x, y));
+	                //System.out.println("(" + x + ", " + y + ")");
+	                currentPerRow--;
+	            }
+	        }
+	        perRow++;
+	    }
+	   
+	   // Last n-1 rows moving right and up from top-left corner
+	   perRow = n; 
+       for(int y = 4*n - 3; y > 2*n; y -= 2) {
+            currentPerRow = perRow;
+            for(int x = 4*n - 3; x > 0; x -= 2) {
+                if(currentPerRow > 0) {
+                    centres.add(new Point(x, y));
+                    //System.out.println("(" + x + ", " + y + ")");
+                    currentPerRow--;
+                }
+            }
+            perRow++;
+        }
+       return centres;
+	}
 	
 	/*
 	

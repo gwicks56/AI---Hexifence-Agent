@@ -9,7 +9,7 @@ public class Test {
         int P1count = 0;
         int P2count = 0;
         int error = 0;
-        
+
         int count = 1000;
         while(count-- != 0) {
             int win = Referee.result(args[0], args[1], args[2]);
