@@ -7,14 +7,14 @@ import java.util.Map;
 import java.util.Random;
 /* baseline + lets go of shortest chain */
 
-public class MoveFinder3 implements IMoveFinder {
+public class MoveFinder3b implements IMoveFinder {
     private HashMap<ArrayList<Hexagon>, Integer> OpenChains;
     private Random random;
     private HashMap<Point, Hexagon> Hexagons;
     private HashMap<Point, Edge> Edges;
     
     
-    public MoveFinder3(Game game) {
+    public MoveFinder3b(Game game) {;
         Hexagons = game.getHexagons();
         Edges = game.getEdges();    
         random = new Random();  
@@ -25,33 +25,39 @@ public class MoveFinder3 implements IMoveFinder {
     
     public Edge findMove() {
         ArrayList<Edge> safeMoves = new ArrayList<Edge>();
-        // Tries to find any hexagon which is possible to capture
-        for(Hexagon hexagon: Hexagons.values()) {
-            if(hexagon.getSidesTaken() == 5)
-                for(Edge edge: hexagon.getEdges()) {
-                    if(!edge.isMarked()) {
-                        return edge;
-                    }
-                }
-        }
-        // Generates a list of safe moves which won't enable
-        // opponent to capture a hexagon
-
+        ArrayList<Edge> captureMoves = new ArrayList<Edge>();
+        
+        // Generates safe(non-capturable), unsafe and capture moves
         for (Edge edge: Edges.values()) {
             if(edge.isMarked()) continue;
             boolean isSafe = true;
             
             // Determine if the move is safe or not
             for(Hexagon parent: edge.getParents()) {
+                // Edge with a parent of 5 sides can be captured
+                if(parent.getSidesTaken() == 5) {
+                    isSafe = false;
+                    captureMoves.add(edge);
+                    break;
+                }
+                // Edge with a parent of 4 sides is unsafe as 
+                // opponent can capture it
                 if (parent.getSidesTaken() == 4) {
                     isSafe = false;
                     break;
                 }
             }
+            // If neither unsafe nor can it be capture, its safe
             if(isSafe) {
                 safeMoves.add(edge);
             }
         }
+        if(!captureMoves.isEmpty()) {
+            // Select a safe move randomly if possible
+            int index = random.nextInt(captureMoves.size());
+            return captureMoves.get(index);
+        }
+        
         if(!safeMoves.isEmpty()) {
             // Select a safe move randomly if possible
             int index = random.nextInt(safeMoves.size());
