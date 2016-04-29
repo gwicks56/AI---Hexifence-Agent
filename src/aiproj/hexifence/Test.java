@@ -10,7 +10,7 @@ public class Test {
         int P2count = 0;
         int error = 0;
         
-        int count = 5000;
+        int count = 1000;
         while(count-- != 0) {
             int win = Referee.result(args[0], args[1], args[2]);
             if(win == 1) {
@@ -20,7 +20,7 @@ public class Test {
                 P2count++;
             }
             else {
-                error = 0;
+                error++;
             }
         }
         
