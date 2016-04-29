@@ -1,4 +1,4 @@
-package aiproj.hexifence;
+package aiproj.hexifence.mskgw;
 
 import java.io.PrintStream;
 

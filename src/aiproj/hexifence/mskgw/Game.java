@@ -3,7 +3,7 @@
  * Project 1 - Artificial Intelligence
  */
 
-package hexifenceagent;
+package aiproj.hexifence.mskgw;
 
 import java.awt.Point;
 import java.io.PrintStream;
@@ -11,8 +11,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
-
-import aiproj.hexifence.Piece;
 
 /*
 * This is the entry point of hexifence game

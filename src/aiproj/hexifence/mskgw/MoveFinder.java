@@ -1,4 +1,4 @@
-package hexifenceagent;
+package aiproj.hexifence.mskgw;
 
 import java.awt.Point;
 import java.util.ArrayList;

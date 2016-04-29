@@ -3,7 +3,7 @@
  * Project 1 - Artificial Intelligence
  */
 
-package hexifenceagent;
+package aiproj.hexifence.mskgw;
 
 import java.awt.Point;
 import java.util.ArrayList;

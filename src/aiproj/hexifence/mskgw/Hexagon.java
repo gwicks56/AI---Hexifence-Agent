@@ -4,7 +4,7 @@
  */
 
 
- package hexifenceagent;
+ package aiproj.hexifence.mskgw;
 
 
 import java.awt.Point;

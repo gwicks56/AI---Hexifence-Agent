@@ -1,4 +1,4 @@
-package hexifenceagent;
+package aiproj.hexifence.mskgw;
 
 import java.util.ArrayList;
 import java.util.Random;

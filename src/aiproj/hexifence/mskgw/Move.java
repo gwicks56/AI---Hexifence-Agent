@@ -1,4 +1,4 @@
-package aiproj.hexifence;
+package aiproj.hexifence.mskgw;
 /*
  *   Move:
  *      Define possible hexifence move
