@@ -209,10 +209,7 @@ public class MoveFinder implements IMoveFinder {
             for(Edge edge: current.getEdges()) {
                 if(!edge.isMarked() && edge.isShared()) {
                     Hexagon adjacent = edge.getOtherParent(current);
-                    if(adjacent.getSidesTaken() == 4) {
-                        chain.add(adjacent);
-                        findChains(current, chain); //REC STARTS
-                    }
+                    findChains(adjacent, chain); //REC STARTS
                 }
             }
         }
