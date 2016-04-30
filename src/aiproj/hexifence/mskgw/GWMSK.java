@@ -32,11 +32,11 @@ public class GWMSK implements Player, Piece {
         myColour = p;
         if(myColour == RED) {
             opColour = BLUE;
-            moveFinder = new MoveFinder(game);
+            moveFinder = new MoveFinder3b(game);
         }
         else {
             opColour = RED;
-            moveFinder = new MoveFinder3b(game);
+            moveFinder = new MoveFinderNew(game);
         }
         maxScore = game.getHexagons().size();
         
@@ -78,6 +78,7 @@ public class GWMSK implements Player, Piece {
         
         if(totalScore == maxScore) {
             System.out.println("PLAYER" + myColour + " SCORE: " + myScore + " PLAYER" + opColour + " SCORE: " + opScore);
+            System.out.println("doublecrossed: " + game.getDoubleCrossedCount());
             if(myScore > opScore) {
                 return myColour;
             }

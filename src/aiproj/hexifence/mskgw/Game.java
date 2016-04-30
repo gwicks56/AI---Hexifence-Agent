@@ -29,13 +29,14 @@ public class Game {
 	private HashMap<Point, Edge> Edges;
     /* The number of hexagons captured mapped by its colour */
     private HashMap<Integer, Integer> Score;
-
+    /* The number of times one move captured two hexagons. */
+    private int doubleCrossedCount;
 			
 	public Game(int n)  {
 		Hexagons = new HashMap<Point, Hexagon>();
 		Edges = new HashMap<Point, Edge>();
 		Score = new HashMap<Integer, Integer>();
-			
+		setDoubleCrossedCount(0);
 		/* Scores are 0 initially */
 		Score.put(Piece.BLUE, 0);
 		Score.put(Piece.RED, 0);
@@ -156,6 +157,7 @@ public class Game {
         edge.setMarked(true);
         
 	    status = 0;
+	    int captureCount = 0;
 	    for(Hexagon parent : edge.getParents()) {
 	        parent.captureSide();
 	        if(parent.getSidesTaken() == 6) {
@@ -168,15 +170,18 @@ public class Game {
                Point hexPos = parent.getPosition();
                if(colour == Piece.RED) {
                    board[hexPos.x][hexPos.y] = 'r';
+                   captureCount++;
                }
                else if(colour == Piece.BLUE) {
                    board[hexPos.x][hexPos.y] = 'b';
+                   captureCount++;
                }
-               
                status = 1;
             }       
 	    }
-
+	    if (captureCount == 2) {
+	        setDoubleCrossedCount(getDoubleCrossedCount() + 1);
+	    }
 	    return status;
 	}
 	
@@ -241,6 +246,14 @@ public class Game {
         }
        return centres;
 	}
+
+    public int getDoubleCrossedCount() {
+        return doubleCrossedCount;
+    }
+
+    public void setDoubleCrossedCount(int doubleCrossedCount) {
+        this.doubleCrossedCount = doubleCrossedCount;
+    }
 	
 	/*
 	

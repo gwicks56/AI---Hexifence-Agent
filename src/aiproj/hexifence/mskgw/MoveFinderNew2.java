@@ -6,16 +6,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-public class MoveFinder implements IMoveFinder {
+public class MoveFinderNew2 implements IMoveFinder {
     private HashMap<ArrayList<Hexagon>, Integer> OpenChains;
     private ArrayList<ArrayList<Edge>> DoubleDeals;  
     private Random random;
     private Game game;
     private HashMap<Point, Hexagon> Hexagons;
     private HashMap<Point, Edge> Edges;
+
     
-    
-    public MoveFinder(Game game) {
+    public MoveFinderNew2(Game game) {
         this.game = game;
         Hexagons = game.getHexagons();
         Edges = game.getEdges();    
@@ -29,6 +29,7 @@ public class MoveFinder implements IMoveFinder {
     public Edge findMove() {
         ArrayList<Edge> safeMoves = new ArrayList<Edge>();
         ArrayList<Edge> captureMoves = new ArrayList<Edge>();
+
         
         // Generates safe(non-capturable), unsafe and capture moves
         for (Edge edge: Edges.values()) {
@@ -55,7 +56,26 @@ public class MoveFinder implements IMoveFinder {
                 safeMoves.add(edge);
             }
         }
+
+        // When there are safe moves and moves you can capture
+        // Then capture them as you can land a safe move to end turn
+        if(!safeMoves.isEmpty() && !captureMoves.isEmpty()) {
+            return selectRandomly(captureMoves);
+        }
         
+        
+        // FIND DOUBLE DEALS (HALF-CLOSED CHAINS OF STRICTLY LENGTH 2 
+        // (5-SIDE CAPTURED HEXAGON SHARED WITH 4 SIDE-CAPTURED HEXAGON)
+        // THE LATTER HEXAGON IS NOT SHARED WITH A 4-SIDE-CAPTURED HEXAGON
+        //findDoubleDeals();
+        findDoubleDeals();
+        
+        // Offer a double-deal sacrifice move to opponent to keep
+        // double-crossed moves even
+        if(!DoubleDeals.isEmpty() && game.getDoubleCrossedCount() % 2 == 0) {
+            System.out.println("##################################################SACRIFICE");
+            return DoubleDeals.get(0).get(1);
+        }
         
         // When there are safe moves and but no capture moves
         if(!safeMoves.isEmpty() && captureMoves.isEmpty()) {
@@ -63,50 +83,40 @@ public class MoveFinder implements IMoveFinder {
             return selectRandomly(safeMoves);
         }
         
-        // When there are safe moves and moves you can capture
-        // Then capture them as you can land a safe move to end turn
-        if(!safeMoves.isEmpty() && !captureMoves.isEmpty()) {
-            return selectRandomly(captureMoves);
-        }
-        
-        /* ALL MOVES ARE NON-SAFE FROM THIS POINT (UNSAFE OR CAPTURABLE) */
-        
-        
-        // FIND DOUBLE DEALS (HALF-CLOSED CHAINS OF STRICTLY LENGTH 2 
-        // (5-SIDE CAPTURED HEXAGON SHARED WITH 4 SIDE-CAPTURED HEXAGON)
-        // THE LATTER HEXAGON IS NOT SHARED WITH A 4-SIDE-CAPTURED HEXAGON
-        findDoubleDeals(); 
-
         // If there are 0 or 2 or more double dealing moves and a capture move, then
         // capture it as we will still have a double dealer to make use of later
         if((DoubleDeals.isEmpty() || DoubleDeals.size() >= 2) && !captureMoves.isEmpty()) {
             return selectRandomly(captureMoves);
         }
         
-        // If there is a capture move that is not part of the single double deal
-        // chain of moves, then capture it as it won't affect the double deal chain
-        ArrayList<Edge> captureMovesNonDD = new ArrayList<Edge>();
-        if(DoubleDeals.size() == 1 && !captureMoves.isEmpty()) {
-            ArrayList<Edge> chain = DoubleDeals.get(0);
-            for(Edge edge : captureMoves) {
-                boolean isDD = false;
-                for(Edge chainEdge : chain) {
-                    if(chainEdge == edge) {
-                        isDD = true;
-                        break;
+        if(DoubleDeals.size() == 1) {
+            // If there is a capture move that is not part of the single double deal
+            // chain of moves, then capture it as it won't affect the double deal chain
+            ArrayList<Edge> captureMovesNonDD = new ArrayList<Edge>();
+            if(!DoubleDeals.isEmpty() && !captureMoves.isEmpty()) {
+                ArrayList<Edge> chain = DoubleDeals.get(0);
+                for(Edge edge : captureMoves) {
+                    boolean isDD = false;
+                    for(Edge chainEdge : chain) {
+                        if(chainEdge == edge) {
+                            isDD = true;
+                            break;
+                        }
+                    }
+                    if(!isDD) {
+                        captureMovesNonDD.add(edge);
                     }
                 }
-                if(!isDD) {
-                    captureMovesNonDD.add(edge);
+                if(!captureMovesNonDD.isEmpty()) {
+                    return selectRandomly(captureMovesNonDD);
                 }
-            }
-            if(!captureMovesNonDD.isEmpty()) {
-                return selectRandomly(captureMovesNonDD);
             }
         }
         
         // FIND OPEN-CHAINS (SERIES OF SHARED 4-SIDES CAPTURED HEXAGONS)
         findChains();  
+
+        
         // Find the lengths of OPEN chains of different sizes and
         // Find the smallest chain
         int chain1Count = 0; /* count of open-chains of size 1 (just 1 hexagon) */
