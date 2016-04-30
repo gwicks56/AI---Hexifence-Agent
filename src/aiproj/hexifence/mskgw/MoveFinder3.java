@@ -47,6 +47,9 @@ public class MoveFinder3 implements IMoveFinder {
                     isSafe = false;
                     break;
                 }
+                if(parent.getSidesTaken() == 5) {
+                    System.out.println("PASA");
+                }
             }
             if(isSafe) {
                 safeMoves.add(edge);

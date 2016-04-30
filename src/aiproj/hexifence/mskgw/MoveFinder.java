@@ -150,12 +150,15 @@ public class MoveFinder implements IMoveFinder {
         System.out.println("ERROR: NO MOVE");
         return null;
     }
-        
     
     public void findDoubleDeals() {
         DoubleDeals.clear();
         for(Hexagon hexagon: Hexagons.values()) {
-            if(hexagon.getSidesTaken() != 5) continue;
+            hexagon.setVisited(false);
+        }
+        for(Hexagon hexagon: Hexagons.values()) {
+            if(hexagon.getSidesTaken() != 5 || hexagon.isVisited()) continue;
+            hexagon.setVisited(true);
             ArrayList<Edge> chain = new ArrayList<Edge>();
             Edge current = null;
             for(Edge edge : hexagon.getEdges()) {
@@ -176,7 +179,7 @@ public class MoveFinder implements IMoveFinder {
             }
             
             parent = current.getOtherParent(parent);
-            if (parent == null  || parent.getSidesTaken() < 4) {
+            if (parent == null  || parent.getSidesTaken() < 4 || parent.getSidesTaken() == 5) {
                 DoubleDeals.add(chain);
                 System.out.println("FOUND");
             } 
