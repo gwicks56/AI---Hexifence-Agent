@@ -38,13 +38,11 @@ public class MoveFinder3b implements IMoveFinder {
                 if(parent.getSidesTaken() == 5) {
                     isSafe = false;
                     captureMoves.add(edge);
-                    break;
                 }
                 // Edge with a parent of 4 sides is unsafe as 
                 // opponent can capture it
                 if (parent.getSidesTaken() == 4) {
                     isSafe = false;
-                    break;
                 }
             }
             // If neither unsafe nor can it be capture, its safe
@@ -99,9 +97,11 @@ public class MoveFinder3b implements IMoveFinder {
         
         for(Hexagon hexagon: Hexagons.values()) {
             ArrayList<Hexagon> chain = new ArrayList<Hexagon>();
-            findChains(hexagon, chain);
+            if(hexagon.getSidesTaken() == 4) {
+                findChains(hexagon, chain);
+            }
             int chainSize = chain.size();
-            if(chainSize > 0) {
+            if(chainSize > 0 && !chain.contains(null)) {
                 OpenChains.put(chain, chainSize);
             }
         }
@@ -110,6 +110,11 @@ public class MoveFinder3b implements IMoveFinder {
     public void findChains(Hexagon current, ArrayList<Hexagon> chain) {
         if(current.isVisited()) return;
         current.setVisited(true);
+        if(current.getSidesTaken() > 4) {
+            // then the chain is closed, so its not an open chain
+            // add null so that we know
+            chain.add(null);
+        }
         if(current.getSidesTaken() == 4) {
             chain.add(current);
             for(Edge edge: current.getEdges()) {

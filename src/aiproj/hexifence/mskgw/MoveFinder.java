@@ -41,13 +41,11 @@ public class MoveFinder implements IMoveFinder {
                 if(parent.getSidesTaken() == 5) {
                     isSafe = false;
                     captureMoves.add(edge);
-                    break;
                 }
                 // Edge with a parent of 4 sides is unsafe as 
                 // opponent can capture it
                 if (parent.getSidesTaken() == 4) {
                     isSafe = false;
-                    break;
                 }
             }
             // If neither unsafe nor can it be capture, its safe
@@ -55,7 +53,6 @@ public class MoveFinder implements IMoveFinder {
                 safeMoves.add(edge);
             }
         }
-        
         
         // When there are safe moves and but no capture moves
         if(!safeMoves.isEmpty() && captureMoves.isEmpty()) {
@@ -130,7 +127,37 @@ public class MoveFinder implements IMoveFinder {
         // and there are even number of short chains (size 1 or 2)
         // so that opponent opens up long chain(s) for you to capture later
         int otherChainCount = chain1Count + chain2Count;
-        if(!DoubleDeals.isEmpty() && chain3Count > 0 && (otherChainCount % 2 == 0)) {
+        if(DoubleDeals.size() == 1 && chain3Count > 0 && otherChainCount % 2 == 0) {
+            
+            
+            int notCaptured = 0;
+            for(Hexagon hexagon: Hexagons.values()) {
+                if(hexagon.getSidesTaken() != 6) {
+                    notCaptured++;
+                }
+            }
+            System.out.println("HEXAGONS LEFT: " + notCaptured);
+            int enc = 0;
+            for(Edge edge: Edges.values()) {
+                if(!edge.isMarked()) {
+                    enc++;
+                }
+            }
+            System.out.println("EDGES LEFT: " + enc);
+            System.out.println("LONG CHAIN COUNTS: " + chain3Count);
+            System.out.println("EDGES LEFT: " + enc);
+            System.out.println("LONG CHAIN COUNTS: ");
+            System.out.println("CHAIN 2 COUNTS: " + chain2Count);
+            System.out.println("CHAIN 1 COUNTS: " + chain1Count);
+            System.out.println("CAPTURE MOVES: " + captureMoves.size());
+            
+            for(Map.Entry<ArrayList<Hexagon>,Integer> e : OpenChains.entrySet()) {
+               ArrayList<Hexagon> chain = e.getKey();
+               System.out.println("CHAIN SIZE: " +e.getValue());
+               
+            }
+                      
+            
             System.out.println("##################################################SACRIFICE");
             return DoubleDeals.get(0).get(1);    
         }
@@ -197,9 +224,11 @@ public class MoveFinder implements IMoveFinder {
         
         for(Hexagon hexagon: Hexagons.values()) {
             ArrayList<Hexagon> chain = new ArrayList<Hexagon>();
-            findChains(hexagon, chain);
+            if(hexagon.getSidesTaken() == 4) {
+                findChains(hexagon, chain);
+            }
             int chainSize = chain.size();
-            if(chainSize > 0) {
+            if(chainSize > 0 && !chain.contains(null)) {
                 OpenChains.put(chain, chainSize);
             }
         }
@@ -208,6 +237,11 @@ public class MoveFinder implements IMoveFinder {
     public void findChains(Hexagon current, ArrayList<Hexagon> chain) {
         if(current.isVisited()) return;
         current.setVisited(true);
+        if(current.getSidesTaken() > 4) {
+            // then the chain is closed, so its not an open chain
+            // add null so that we know
+            chain.add(null);
+        }
         if(current.getSidesTaken() == 4) {
             chain.add(current);
             for(Edge edge: current.getEdges()) {
