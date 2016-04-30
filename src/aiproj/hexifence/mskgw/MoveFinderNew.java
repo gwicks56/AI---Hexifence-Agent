@@ -81,9 +81,13 @@ public class MoveFinderNew implements IMoveFinder {
                     notCaptured++;
                 }
             }
-            // sacrifice except the last chain
+            // If there are more than 3 hexagons which are not captured
+            // Then this is not the last chain, so we can sacrifice
+            // to keep control
             System.out.println("##################################################SACRIFICE");
-            if(notCaptured > 3) return DoubleDeals.get(0).get(1);
+            if(notCaptured > 3) {
+                return DoubleDeals.get(0).get(1);
+            }
         }
         
         // When there are safe moves and but no capture moves
@@ -92,7 +96,7 @@ public class MoveFinderNew implements IMoveFinder {
             return selectRandomly(safeMoves);
         }
 
-                
+        /*        
         // If there is a capture move that is not part of the single double deal
         // chain of moves, then capture it as it won't affect the double deal chain
         ArrayList<Edge> captureMovesNonDD = new ArrayList<Edge>();
@@ -114,10 +118,8 @@ public class MoveFinderNew implements IMoveFinder {
             if(!captureMovesNonDD.isEmpty()) {
                 return selectRandomly(captureMovesNonDD);
             }
-        }
-    
-        
-        // If we decided not to sacrifice the double deal move then we capture them
+        }*/
+
         if(!captureMoves.isEmpty()) {
             return selectRandomly(captureMoves);
         }
