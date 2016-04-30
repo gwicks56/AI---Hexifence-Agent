@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-/* baseline + lets go of shortest chain */
+/* baseline + lets go of shortest chain if there is no option */
 
 public class MoveFinder3b implements IMoveFinder {
     private HashMap<ArrayList<Hexagon>, Integer> OpenChains;

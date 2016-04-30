@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-
+// the original movefinder
 public class MoveFinder implements IMoveFinder {
     private HashMap<ArrayList<Hexagon>, Integer> OpenChains;
     private ArrayList<ArrayList<Edge>> DoubleDeals;  

@@ -2,7 +2,7 @@ package aiproj.hexifence.mskgw;
 
 import java.util.ArrayList;
 import java.util.Random;
-
+/* baseline: captures what it can otherwise plays safely */
 public class MoveFinder2 implements IMoveFinder {
 
     private Random random;    
