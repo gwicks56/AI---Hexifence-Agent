@@ -301,10 +301,10 @@ public class MoveFinderSuper implements IMoveFinder {
 
             if(IsPlusChain(chain)) {
                 // These chains are considered smaller than usual
-                // 4-length chains as double-dealing
+                // 3-length chains as double-dealing
                 // sacrifice moves cannot be done on them
                 plusChainsCount++;
-                size = 3.5f;
+                size = 2.7f;
             }
             
             if(IsTriangularChain(chain)) {
@@ -335,7 +335,7 @@ public class MoveFinderSuper implements IMoveFinder {
         if(DoubleDeals.size() != 1) {
             return false;
         }
-
+        
         // Scores for double-dealing or not double dealing respectively
         int doubleDealScore = getNetScore(true, longChainsCount,plusChainsCount,
                 triangularChainsCount, chains2Count, chains1Count);
@@ -414,12 +414,22 @@ public class MoveFinderSuper implements IMoveFinder {
                         - (Math.max((longChainsCount - 1) * 2, 0)) 
                         - 2; 
       
+        
+        int trapped = 0;
+        for(Hexagon h : Hexagons.values()) {
+            if(h.getSidesTaken() <4 ) {
+                trapped++;
+            }
+        }
+        score += trapped;
+        
         if (myGain) {
             score += chainScore;
         }
         else {
             score -= chainScore;
         }
+        
         return score;
     }
     
