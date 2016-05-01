@@ -7,7 +7,7 @@ import java.io.PrintStream;
 
 public class GWMSK implements Player, Piece {
 
-    private Game game;
+    public Game game;
     private int myColour;
     private int opColour;
     private int maxScore;
@@ -32,11 +32,11 @@ public class GWMSK implements Player, Piece {
         myColour = p;
         if(myColour == BLUE) {
             opColour = RED;
-            moveFinder = new MoveFinder3b(game);
+            moveFinder = new MoveFinderSuper(game);
         }
         else {
             opColour = BLUE;
-            moveFinder = new MoveFinderSuper(game);
+            moveFinder = new MoveFinder(game);
         }
         maxScore = game.getHexagons().size();
         

@@ -277,40 +277,6 @@ public class MoveFinderSuper implements IMoveFinder {
     }
     
     
-    /*
-     * This method checks whether a open chain is triangular or
-     * not.  
-     */
-    private boolean IsTriangularChain(ArrayList<Hexagon> chain) {
-        /* Only chains of size 3 can be triangular */
-        if(chain.size() != 3) return false;
-        
-        /* Every hexagon in triangular chain shares a free edge with
-         * the other two hexagons in the chain.
-         */
-        for(Hexagon h1 : chain) {
-            for(Hexagon h2 : chain) {
-                // ignore checking for same hexagons
-                if (h2 == h1) continue;
-                boolean isShared = false;
-                // Look for a free edge that is shared between the pair
-                // of hexagons
-                for(Edge edge : h1.getEdges()) {                   
-                    if (!edge.isMarked() && edge.getOtherParent(h1) == h2) {
-                        isShared = true;
-                        break;
-                    }
-                }
-                // If a hexagon in h1 does not share a free edge 
-                // with a different hexaogn in the chain
-                // then its not triangular
-                if(!isShared) return false;
-            }
-        }
-        
-        return true;
-    }
-    
     /* This method determines whether the player should offer a
      * double dealing sacrificial move or not. It also finds
      * the smallest chain.
@@ -318,7 +284,9 @@ public class MoveFinderSuper implements IMoveFinder {
     private boolean willSacrifice(ArrayList<Edge> sm, ArrayList<Edge> cm) {
         /* Count of chains of size 3 or greater which CAN offer double deal sacrifice */
         int longChainsCount = 0;
-        /* Count of chains 3 arranged in triangle and can not offer double deal sacrifice */
+        /* Count of chains 4 arranged in circular plus and can not offer double deal sacrifice */
+        int plusChainsCount = 0;
+        /* Count of chains 3 arranged in circular triangle and can not offer double deal sacrifice */
         int triangularChainsCount = 0;
         /* Count of chains 2 which cannot offer double deal sacrifice */
         int chains2Count = 0;
@@ -331,9 +299,18 @@ public class MoveFinderSuper implements IMoveFinder {
         for(ArrayList<Hexagon> chain : OpenChains) {
             float size = chain.size();
 
+            if(IsPlusChain(chain)) {
+                // These chains are considered smaller than usual
+                // 4-length chains as double-dealing
+                // sacrifice moves cannot be done on them
+                plusChainsCount++;
+                size = 3.5f;
+            }
+            
             if(IsTriangularChain(chain)) {
                 System.out.println("TRIANGULAR FOUND");
-                // These chains are considered smaller as double-dealing
+                // These chains are considered smaller than usual
+                // 3-length chains as double-dealing
                 // sacrifice moves cannot be done on them
                 size = 2.5f; 
                 triangularChainsCount++;
@@ -360,9 +337,11 @@ public class MoveFinderSuper implements IMoveFinder {
         }
 
         // Scores for double-dealing or not double dealing respectively
-        int doubleDealScore = getNetScore(true, longChainsCount, triangularChainsCount, chains2Count, chains1Count);
-        int normalScore = getNetScore(false, longChainsCount, triangularChainsCount, chains2Count, chains1Count);
-        
+        int doubleDealScore = getNetScore(true, longChainsCount,plusChainsCount,
+                triangularChainsCount, chains2Count, chains1Count);
+        int normalScore = getNetScore(false, longChainsCount, plusChainsCount,
+                triangularChainsCount, chains2Count, chains1Count);
+        game.setDoubleCrossedCount(game.getDoubleCrossedCount()+1);
         if(doubleDealScore > normalScore) {
             System.out.println("################################SACRIFICE###############################################");
             printStatus(longChainsCount, triangularChainsCount, chains2Count, chains1Count);
@@ -376,7 +355,8 @@ public class MoveFinderSuper implements IMoveFinder {
         return false;
     }
     
-    public int getNetScore(boolean doubleDeal, int longChainsCount, int triangularChainsCount, int chains2Count, int chains1Count) {
+    public int getNetScore(boolean doubleDeal, int longChainsCount, int plusChainsCount,
+            int triangularChainsCount, int chains2Count, int chains1Count) {
         int score = 0;
         boolean myGain = false;
         
@@ -397,6 +377,9 @@ public class MoveFinderSuper implements IMoveFinder {
         }
         for(int i = 0; i < triangularChainsCount; i++) {
             queue.add(3);
+        }
+        for(int i = 0; i < plusChainsCount; i++) {
+            queue.add(4);
         }
         
         // Whoever is in control, offers the opponent the next smallest
@@ -426,7 +409,7 @@ public class MoveFinderSuper implements IMoveFinder {
         // the long chains to maintain control (double dealings) and the initial
         // double dealing are won from the chains.. This way was used because
         // a hexagon may be trapped between multiple chains
-        int chainScore = hexagonsLeft
+        int chainScore = hexagonsLeft - (plusChainsCount * 4)
                         - ((triangularChainsCount * 3) + (chains2Count * 2) + (chains1Count * 1)) 
                         - (Math.max((longChainsCount - 1) * 2, 0)) 
                         - 2; 
@@ -438,6 +421,103 @@ public class MoveFinderSuper implements IMoveFinder {
             score -= chainScore;
         }
         return score;
+    }
+    
+    
+    /*
+     * This method checks whether a open chain is actually a
+     *  a closed circular plus-shaped (4) loop which cannot offer
+     *  double dealing sacrificial.
+     */
+    public boolean IsPlusChain(ArrayList<Hexagon> chain) { 
+        /* Only chains of size 4 can be plus-shaped */
+        if(chain.size() != 4) return false;
+        
+        ArrayList<Hexagon> horizontals = new ArrayList<Hexagon>();
+        ArrayList<Hexagon> verticals = new ArrayList<Hexagon>();
+     
+        // Only 2 hexagons share only 1 marked edge which are referred as horizontals    
+        int sharedMarkedCount = 0;
+        for(Hexagon h1 : chain) {
+            for(Hexagon h2: chain) {
+                if(h1 == h2) continue;          
+                for(Edge edge: h1.getEdges()) {
+                    if(edge.isMarked() && edge.isShared() && edge.getOtherParent(h1) == h2) {
+                        sharedMarkedCount++;
+                        if (!horizontals.contains(h1)) horizontals.add(h1);
+                        if (!horizontals.contains(h2)) horizontals.add(h2);
+                    }
+                }
+ 
+            }
+        }
+        // Two hexagons must share 1 edge (count is 2 here as it is done twice in loop)
+        if(sharedMarkedCount != 2 || horizontals.size() !=2) return false;
+        
+        // The other two are verticals
+        for(Hexagon h: chain) {
+            if(!horizontals.contains(h)) {
+                verticals.add(h);
+            }
+        }
+
+        // Each of the two verticals must share a free edge with both horizontals
+        for(Hexagon h : horizontals) {
+            for(Hexagon v : verticals) {
+                if(h == v) return false;
+                boolean isShared = false;
+                // Look for a free edge that is shared between the pair
+                // of hexagons
+                for(Edge edge : h.getEdges()) {                   
+                    if (!edge.isMarked() && edge.getOtherParent(h) == v) {
+                        isShared = true;
+                        break;
+                    }
+                }
+                // If a hexagon in h1 does not share a free edge 
+                // with a different hexagon in the chain
+                // then its not plus shaed
+                if(!isShared) return false;
+                
+            }
+        }
+        System.out.println("PLUS FOUND");       
+        return true;
+    }
+    
+    /*
+     * This method checks whether a open chain is actually a
+     *  a closed circular triangular (3) loop which cannot offer
+     *  double dealing sacrificial.
+     */
+    private boolean IsTriangularChain(ArrayList<Hexagon> chain) {
+        /* Only chains of size 3 can be triangular */
+        if(chain.size() != 3) return false;
+        
+        /* Every hexagon in triangular chain shares a free edge with
+         * the other two hexagons in the chain.
+         */
+        for(Hexagon h1 : chain) {
+            for(Hexagon h2 : chain) {
+                // ignore checking for same hexagons
+                if (h2 == h1) continue;
+                boolean isShared = false;
+                // Look for a free edge that is shared between the pair
+                // of hexagons
+                for(Edge edge : h1.getEdges()) {                   
+                    if (!edge.isMarked() && edge.getOtherParent(h1) == h2) {
+                        isShared = true;
+                        break;
+                    }
+                }
+                // If a hexagon in h1 does not share a free edge 
+                // with a different hexaogn in the chain
+                // then its not triangular
+                if(!isShared) return false;
+            }
+        }
+        
+        return true;
     }
     
 }
