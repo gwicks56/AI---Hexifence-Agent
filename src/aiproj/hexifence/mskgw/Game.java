@@ -157,7 +157,6 @@ public class Game {
         edge.setMarked(true);
         
 	    status = 0;
-	    int captureCount = 0;
 	    for(Hexagon parent : edge.getParents()) {
 	        parent.captureSide();
 	        if(parent.getSidesTaken() == 6) {
@@ -170,17 +169,12 @@ public class Game {
                Point hexPos = parent.getPosition();
                if(colour == Piece.RED) {
                    board[hexPos.x][hexPos.y] = 'r';
-                   captureCount++;
                }
                else if(colour == Piece.BLUE) {
                    board[hexPos.x][hexPos.y] = 'b';
-                   captureCount++;
                }
                status = 1;
             }       
-	    }
-	    if (captureCount == 2) {
-	        setDoubleCrossedCount(getDoubleCrossedCount() + 1);
 	    }
 	    return status;
 	}
