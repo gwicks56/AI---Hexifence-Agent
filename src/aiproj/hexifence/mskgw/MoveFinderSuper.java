@@ -31,12 +31,13 @@ public class MoveFinderSuper implements IMoveFinder {
     
     public Edge findMove() {
         ArrayList<Edge> safeMoves = new ArrayList<Edge>();
-        ArrayList<Edge> unsafeMoves = new ArrayList<Edge>();
+        ArrayList<Edge> validMoves = new ArrayList<Edge>();
         ArrayList<Edge> captureMoves = new ArrayList<Edge>();
         
         // Generates safe(non-capturable), unsafe and capture moves
         for (Edge edge: Edges.values()) {
             if(edge.isMarked()) continue;
+            validMoves.add(edge);
             boolean isSafe = true;
             
             // Determine if the move is safe or not
@@ -50,7 +51,6 @@ public class MoveFinderSuper implements IMoveFinder {
                 // opponent can capture it
                 if (parent.getSidesTaken() == 4) {
                     isSafe = false;
-                    unsafeMoves.add(edge);
                 }
             }
             // If neither unsafe nor can it be capture, its safe
@@ -115,7 +115,7 @@ public class MoveFinderSuper implements IMoveFinder {
         }
         smallestChain = null;
         /* If there is one double deal move in the plate, try to see if its good to use it */
-        if(willSacrifice(safeMoves, captureMoves)) {
+        if(willSacrifice(safeMoves, captureMoves)) { // this also finds the smallest chain
             return DoubleDeals.get(0).get(1);    
         }
 
@@ -124,15 +124,20 @@ public class MoveFinderSuper implements IMoveFinder {
             return selectRandomly(captureMoves);
         }
 
-        // If there is no other option, open up the smallest chain
-        Hexagon hexagon = smallestChain.get(0);
-        for(Edge edge : hexagon.getEdges()) {
-            if(!edge.isMarked()) {
-                return edge;
+        // If there is no other option, open up the smallest chain     
+        if(smallestChain != null) {
+            Hexagon hexagon = smallestChain.get(0);
+            for(Edge edge : hexagon.getEdges()) {
+                if(!edge.isMarked()) {
+                    return edge;
+                }
             }
         }
-  
-        System.out.println("ERROR: NO MOVE");
+        
+        // Just to make it more error-proof
+        if(!validMoves.isEmpty()) {
+            return selectRandomly(validMoves);
+        }
         return null;
     }
     
@@ -375,11 +380,14 @@ public class MoveFinderSuper implements IMoveFinder {
         int score = 0;
         boolean myGain = false;
         
+        // If I double-deal, I lose two points but I get the next chain
         if(doubleDeal) {
             myGain = true;
             score = -2;
         }
         
+        // Adding small (non double-dealing chains) to a queue
+        // Assuming opponent gives up the shortest non double-dealing chain
         Queue<Integer> queue = new LinkedList<Integer>();
         for(int i = 0; i < chains1Count; i++) {
             queue.add(1);
@@ -391,6 +399,9 @@ public class MoveFinderSuper implements IMoveFinder {
             queue.add(3);
         }
         
+        // Whoever is in control, offers the opponent the next smallest
+        // non double-dealing chain and so points are added and subtracted
+        // in turns
         while(!queue.isEmpty()) {
             int points = queue.poll();
             if(myGain) {
@@ -409,11 +420,17 @@ public class MoveFinderSuper implements IMoveFinder {
             }
         }
         
+        // Whoever is in control, gets the points for the long chains
+        // 2 hexagons are sacrificed in double dealing move for all except last chain
+        // Every remaining hexagon except the short non double-dealing, ones lost in
+        // the long chains to maintain control (double dealings) and the initial
+        // double dealing are won from the chains.. This way was used because
+        // a hexagon may be trapped between multiple chains
         int chainScore = hexagonsLeft
                         - ((triangularChainsCount * 3) + (chains2Count * 2) + (chains1Count * 1)) 
-                        - (Math.max((longChainsCount - 1) * 2, 0))
-                        - 2;
-        
+                        - (Math.max((longChainsCount - 1) * 2, 0)) 
+                        - 2; 
+      
         if (myGain) {
             score += chainScore;
         }
