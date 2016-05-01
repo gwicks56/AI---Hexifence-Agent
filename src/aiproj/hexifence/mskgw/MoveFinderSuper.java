@@ -307,7 +307,7 @@ public class MoveFinderSuper implements IMoveFinder {
                 size = 2.7f;
             }
             
-            if(IsTriangularChain(chain)) {
+            else if(IsTriangularChain(chain)) {
                 System.out.println("TRIANGULAR FOUND");
                 // These chains are considered smaller than usual
                 // 3-length chains as double-dealing
@@ -343,7 +343,8 @@ public class MoveFinderSuper implements IMoveFinder {
                 triangularChainsCount, chains2Count, chains1Count);
         game.setDoubleCrossedCount(game.getDoubleCrossedCount()+1);
         if(doubleDealScore > normalScore) {
-            System.out.println("################################SACRIFICE###############################################");
+            System.out.println("###############################################################################");
+            System.out.println("SACRIFICE");
             printStatus(longChainsCount, triangularChainsCount, chains2Count, chains1Count);
             System.out.println("sm: " + sm.size());
             System.out.println("cm: " + cm.size());
@@ -413,15 +414,6 @@ public class MoveFinderSuper implements IMoveFinder {
                         - ((triangularChainsCount * 3) + (chains2Count * 2) + (chains1Count * 1)) 
                         - (Math.max((longChainsCount - 1) * 2, 0)) 
                         - 2; 
-      
-        
-        int trapped = 0;
-        for(Hexagon h : Hexagons.values()) {
-            if(h.getSidesTaken() <4 ) {
-                trapped++;
-            }
-        }
-        score += trapped;
         
         if (myGain) {
             score += chainScore;

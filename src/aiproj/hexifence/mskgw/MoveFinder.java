@@ -128,37 +128,6 @@ public class MoveFinder implements IMoveFinder {
         // so that opponent opens up long chain(s) for you to capture later
         int otherChainCount = chain1Count + chain2Count;
         if(DoubleDeals.size() == 1 && chain3Count > 0 && otherChainCount == 0) {
-            
-            
-            int notCaptured = 0;
-            for(Hexagon hexagon: Hexagons.values()) {
-                if(hexagon.getSidesTaken() != 6) {
-                    notCaptured++;
-                }
-            }
-            System.out.println("HEXAGONS LEFT: " + notCaptured);
-            int enc = 0;
-            for(Edge edge: Edges.values()) {
-                if(!edge.isMarked()) {
-                    enc++;
-                }
-            }
-            System.out.println("EDGES LEFT: " + enc);
-            System.out.println("LONG CHAIN COUNTS: " + chain3Count);
-            System.out.println("EDGES LEFT: " + enc);
-            System.out.println("LONG CHAIN COUNTS: ");
-            System.out.println("CHAIN 2 COUNTS: " + chain2Count);
-            System.out.println("CHAIN 1 COUNTS: " + chain1Count);
-            System.out.println("CAPTURE MOVES: " + captureMoves.size());
-            
-            for(Map.Entry<ArrayList<Hexagon>,Integer> e : OpenChains.entrySet()) {
-               ArrayList<Hexagon> chain = e.getKey();
-               System.out.println("CHAIN SIZE: " +e.getValue());
-               
-            }
-                      
-            
-            System.out.println("##################################################SACRIFICE");
             return DoubleDeals.get(0).get(1);    
         }
 
@@ -209,7 +178,6 @@ public class MoveFinder implements IMoveFinder {
             Hexagon parentNext = currentNext.getOtherParent(parent);
             if (parentNext == null  || parentNext.getSidesTaken() < 4) {
                 DoubleDeals.add(chain);
-                System.out.println("DD FOUND");
             } 
         }
         
