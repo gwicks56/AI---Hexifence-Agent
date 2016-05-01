@@ -109,8 +109,8 @@ public class Edge {
 	}
 	
 	public Hexagon getOtherParent(Hexagon parent) {
-		for (Hexagon p : parents) {
-			if(!p.getPosition().equals(parent.getPosition())) {
+	    for (Hexagon p : parents) {
+			if(p != parent) {
 				return p;
 			}
 		}

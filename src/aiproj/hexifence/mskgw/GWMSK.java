@@ -36,7 +36,7 @@ public class GWMSK implements Player, Piece {
         }
         else {
             opColour = BLUE;
-            moveFinder = new MoveFinderTest(game);
+            moveFinder = new MoveFinder(game);
         }
         maxScore = game.getHexagons().size();
         

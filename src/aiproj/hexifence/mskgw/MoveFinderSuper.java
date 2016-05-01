@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Random;
 // the original movefinder
-public class MoveFinderTest implements IMoveFinder {
+public class MoveFinderSuper implements IMoveFinder {
     private ArrayList<ArrayList<Hexagon>> OpenChains;
     private ArrayList<ArrayList<Edge>> DoubleDeals; 
     private ArrayList<Hexagon> smallestChain;
@@ -18,7 +18,7 @@ public class MoveFinderTest implements IMoveFinder {
     private HashMap<Point, Edge> Edges;
     
     
-    public MoveFinderTest(Game game) {
+    public MoveFinderSuper(Game game) {
         this.game = game;
         Hexagons = game.getHexagons();
         Edges = game.getEdges();    
@@ -84,6 +84,7 @@ public class MoveFinderTest implements IMoveFinder {
         // (5-SIDE CAPTURED HEXAGON SHARED WITH 4 SIDE-CAPTURED HEXAGON)
         // THE LATTER HEXAGON IS NOT SHARED WITH A 4-SIDE-CAPTURED HEXAGON
         findDoubleDeals(); 
+        System.out.println("DOUBLE DEAL SIZE: " + DoubleDeals.size());
         //printStatus(safeMoves, captureMoves, chain3Count, chain2Count, chain1Count);
         // If there are 0 or 2 or more double dealing moves and a capture move, then
         // capture it as we will still have a double dealer to make use of later
@@ -114,7 +115,7 @@ public class MoveFinderTest implements IMoveFinder {
         }
         smallestChain = null;
         /* If there is one double deal move in the plate, try to see if its good to use it */
-        if(willSacrifice()) {
+        if(willSacrifice(safeMoves, captureMoves)) {
             return DoubleDeals.get(0).get(1);    
         }
 
@@ -147,21 +148,25 @@ public class MoveFinderTest implements IMoveFinder {
                     chain.add(edge);
                 }
             }
+            if(current == null) continue;
+            
             Hexagon parent = current.getOtherParent(hexagon);
 
             if(parent == null || parent.getSidesTaken() != 4) continue;
             
+            Edge currentNext = null;
             for(Edge edge: parent.getEdges()) {
                 if(!edge.isMarked() && edge != current) {
-                    current = edge;
+                    currentNext = edge;
                     chain.add(edge);
                 }
             }
+            if(currentNext == null) continue;
             
-            parent = current.getOtherParent(parent);
-            if (parent == null  || parent.getSidesTaken() < 4) {
+            Hexagon parentNext = currentNext.getOtherParent(parent);
+            if (parentNext == null  || parentNext.getSidesTaken() < 4) {
                 DoubleDeals.add(chain);
-                System.out.println("FOUND");
+                System.out.println("DD FOUND");
             } 
         }
         
@@ -305,7 +310,7 @@ public class MoveFinderTest implements IMoveFinder {
      * double dealing sacrificial move or not. It also finds
      * the smallest chain.
      */
-    private boolean willSacrifice() {
+    private boolean willSacrifice(ArrayList<Edge> sm, ArrayList<Edge> cm) {
         /* Count of chains of size 3 or greater which CAN offer double deal sacrifice */
         int longChainsCount = 0;
         /* Count of chains 3 arranged in triangle and can not offer double deal sacrifice */
@@ -356,9 +361,13 @@ public class MoveFinderTest implements IMoveFinder {
         if(doubleDealScore > normalScore) {
             System.out.println("################################SACRIFICE###############################################");
             printStatus(longChainsCount, triangularChainsCount, chains2Count, chains1Count);
+            System.out.println("sm: " + sm.size());
+            System.out.println("cm: " + cm.size());
             return true;
         }
         printStatus(longChainsCount, triangularChainsCount, chains2Count, chains1Count);
+        System.out.println("sm: " + sm.size());
+        System.out.println("cm: " + cm.size());
         return false;
     }
     
