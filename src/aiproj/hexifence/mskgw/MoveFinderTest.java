@@ -3,12 +3,15 @@ package aiproj.hexifence.mskgw;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 import java.util.Random;
 // the original movefinder
 public class MoveFinderTest implements IMoveFinder {
-    private HashMap<ArrayList<Hexagon>, Integer> OpenChains;
-    private ArrayList<ArrayList<Edge>> DoubleDeals;  
+    private ArrayList<ArrayList<Hexagon>> OpenChains;
+    private ArrayList<ArrayList<Edge>> DoubleDeals; 
+    private ArrayList<Hexagon> smallestChain;
     private Random random;
     private Game game;
     private HashMap<Point, Hexagon> Hexagons;
@@ -20,7 +23,7 @@ public class MoveFinderTest implements IMoveFinder {
         Hexagons = game.getHexagons();
         Edges = game.getEdges();    
         random = new Random();  
-        OpenChains = new HashMap<ArrayList<Hexagon>, Integer>();
+        OpenChains = new ArrayList<ArrayList<Hexagon>>();
         DoubleDeals = new ArrayList<ArrayList<Edge>>();
 
     }
@@ -28,6 +31,7 @@ public class MoveFinderTest implements IMoveFinder {
     
     public Edge findMove() {
         ArrayList<Edge> safeMoves = new ArrayList<Edge>();
+        ArrayList<Edge> unsafeMoves = new ArrayList<Edge>();
         ArrayList<Edge> captureMoves = new ArrayList<Edge>();
         
         // Generates safe(non-capturable), unsafe and capture moves
@@ -46,6 +50,7 @@ public class MoveFinderTest implements IMoveFinder {
                 // opponent can capture it
                 if (parent.getSidesTaken() == 4) {
                     isSafe = false;
+                    unsafeMoves.add(edge);
                 }
             }
             // If neither unsafe nor can it be capture, its safe
@@ -73,34 +78,13 @@ public class MoveFinderTest implements IMoveFinder {
         
         // FIND OPEN-CHAINS (SERIES OF SHARED 4-SIDES CAPTURED HEXAGONS)
         findChains();  
-        // Find the lengths of OPEN chains of different sizes and
-        // Find the smallest chain
-        int chain1Count = 0; /* count of open-chains of size 1 (just 1 hexagon) */
-        int chain2Count = 0; /* count of open-chains of size 2 */
-        int chain3Count = 0; /* count of long open-chains of size 3 or more */
-        
-        ArrayList<Hexagon> smallestChain = null;
-        int minSize = Integer.MAX_VALUE;
-        for(Map.Entry<ArrayList<Hexagon>,Integer> e : OpenChains.entrySet()) {
-            int size = e.getValue();
-            if (size < minSize) {
-                minSize = size;
-                smallestChain = e.getKey();
-            }
-            if(size == 1) chain1Count++;
-            if(size == 2) chain2Count++;
-            if(size >= 3) chain3Count++;
-        }
 
-        // Offer a double-deal (sacrifice) when there is a long chain 
-        // and there are even number of short chains (size 1 or 2)
-        // so that opponent opens up long chain(s) for you to capture later
         
         // FIND DOUBLE DEALS (HALF-CLOSED CHAINS OF STRICTLY LENGTH 2 
         // (5-SIDE CAPTURED HEXAGON SHARED WITH 4 SIDE-CAPTURED HEXAGON)
         // THE LATTER HEXAGON IS NOT SHARED WITH A 4-SIDE-CAPTURED HEXAGON
         findDoubleDeals(); 
-        printStatus(safeMoves, captureMoves, chain3Count, chain2Count, chain1Count);
+        //printStatus(safeMoves, captureMoves, chain3Count, chain2Count, chain1Count);
         // If there are 0 or 2 or more double dealing moves and a capture move, then
         // capture it as we will still have a double dealer to make use of later
         if((DoubleDeals.isEmpty() || DoubleDeals.size() >= 2) && !captureMoves.isEmpty()) {
@@ -128,10 +112,9 @@ public class MoveFinderTest implements IMoveFinder {
                 return selectRandomly(captureMovesNonDD);
             }
         }
-        int otherChainCount = chain1Count + chain2Count;
-        
-        if(DoubleDeals.size() == 1 && chain3Count > 0 && otherChainCount % 2 == 0) {
-            System.out.println("##################################################SACRIFICE");
+        smallestChain = null;
+        /* If there is one double deal move in the plate, try to see if its good to use it */
+        if(willSacrifice()) {
             return DoubleDeals.get(0).get(1);    
         }
 
@@ -139,7 +122,7 @@ public class MoveFinderTest implements IMoveFinder {
         if(!captureMoves.isEmpty()) {
             return selectRandomly(captureMoves);
         }
-        
+
         // If there is no other option, open up the smallest chain
         Hexagon hexagon = smallestChain.get(0);
         for(Edge edge : hexagon.getEdges()) {
@@ -198,7 +181,7 @@ public class MoveFinderTest implements IMoveFinder {
             }
             int chainSize = chain.size();
             if(chainSize > 0 && !chain.contains(null)) {
-                OpenChains.put(chain, chainSize);
+                OpenChains.add(chain);
             }
         }
     }
@@ -227,7 +210,7 @@ public class MoveFinderTest implements IMoveFinder {
         return edges.get(index);
     }
     
-    public void printStatus(ArrayList<Edge>safeMoves, ArrayList<Edge>captureMoves, int chain3Count, int chain2Count, int chain1Count) {
+    public void printStatus(int longChainsCount, int triangularChainsCount, int chains2Count, int chains1Count) {
         int notCaptured = 0;
         int size3 = 0, size2 = 0, size1 = 0, size0 = 0, size4 = 0, size5 = 0;
         for(Hexagon hexagon: Hexagons.values()) {
@@ -253,6 +236,7 @@ public class MoveFinderTest implements IMoveFinder {
                 size0++;
             }
         }
+        System.out.println("++++++++++++++++++++++++++++++++++++");
         System.out.println("DOUBLE DEAL SIZE: " + DoubleDeals.size());
         System.out.println("HEXAGONS LEFT: " + notCaptured);
         System.out.println("HEXAGONS WITH SIZE 5: " + size5);
@@ -268,17 +252,166 @@ public class MoveFinderTest implements IMoveFinder {
             }
         }
         System.out.println("EDGES LEFT: " + enc);
-        System.out.println("LONG CHAIN COUNTS: " + chain3Count);
-        System.out.println("EDGES LEFT: " + enc);
-        System.out.println("SAFE MOVE COUNT: " + safeMoves.size());
-        System.out.println("CHAIN 2 COUNTS: " + chain2Count);
-        System.out.println("CHAIN 1 COUNTS: " + chain1Count);
-        System.out.println("CAPTURE MOVES: " + captureMoves.size());
+        System.out.println("TOTAL CHAIN COUNTS: " + OpenChains.size());
+        System.out.println("CHAIN L COUNTS: " + longChainsCount);
+        System.out.println("CHAIN T COUNTS: " + triangularChainsCount);
+        System.out.println("CHAIN 2 COUNTS: " + chains2Count);
+        System.out.println("CHAIN 1 COUNTS: " + chains1Count);
+
         
-        for(Map.Entry<ArrayList<Hexagon>,Integer> e : OpenChains.entrySet()) {
-           ArrayList<Hexagon> chain = e.getKey();
-           System.out.println("CHAIN SIZE: " +e.getValue());
+        for(ArrayList<Hexagon> e : OpenChains) {
+           System.out.println("CHAIN SIZE: " +e.size());
            
         }
+        System.out.println("++++++++++++++++++++++++++++++++++++");
     }
+    
+    
+    /*
+     * This method checks whether a open chain is triangular or
+     * not.  
+     */
+    private boolean IsTriangularChain(ArrayList<Hexagon> chain) {
+        /* Only chains of size 3 can be triangular */
+        if(chain.size() != 3) return false;
+        
+        /* Every hexagon in triangular chain shares a free edge with
+         * the other two hexagons in the chain.
+         */
+        for(Hexagon h1 : chain) {
+            for(Hexagon h2 : chain) {
+                // ignore checking for same hexagons
+                if (h2 == h1) continue;
+                boolean isShared = false;
+                // Look for a free edge that is shared between the pair
+                // of hexagons
+                for(Edge edge : h1.getEdges()) {                   
+                    if (!edge.isMarked() && edge.getOtherParent(h1) == h2) {
+                        isShared = true;
+                        break;
+                    }
+                }
+                // If a hexagon in h1 does not share a free edge 
+                // with a different hexaogn in the chain
+                // then its not triangular
+                if(!isShared) return false;
+            }
+        }
+        
+        return true;
+    }
+    
+    /* This method determines whether the player should offer a
+     * double dealing sacrificial move or not. It also finds
+     * the smallest chain.
+     */
+    private boolean willSacrifice() {
+        /* Count of chains of size 3 or greater which CAN offer double deal sacrifice */
+        int longChainsCount = 0;
+        /* Count of chains 3 arranged in triangle and can not offer double deal sacrifice */
+        int triangularChainsCount = 0;
+        /* Count of chains 2 which cannot offer double deal sacrifice */
+        int chains2Count = 0;
+        /* Count of chains 1 which cannot offer double deal sacrifice */
+        int chains1Count = 0;
+        
+              
+        float minSize = Hexagons.size();
+
+        for(ArrayList<Hexagon> chain : OpenChains) {
+            float size = chain.size();
+
+            if(IsTriangularChain(chain)) {
+                System.out.println("TRIANGULAR FOUND");
+                // These chains are considered smaller as double-dealing
+                // sacrifice moves cannot be done on them
+                size = 2.5f; 
+                triangularChainsCount++;
+            }
+            else if (chain.size() > 2) {
+                longChainsCount++;          
+            }
+            else if (chain.size() == 2) {
+                chains2Count++;
+            }
+            else if(chain.size() == 1) {
+                chains1Count++;
+            }
+            // Find the smallest chain for later use
+            if(size < minSize) {
+                smallestChain = chain;
+                minSize = size;
+            }
+            
+        }
+        
+        if(DoubleDeals.size() != 1) {
+            return false;
+        }
+
+        // Scores for double-dealing or not double dealing respectively
+        int doubleDealScore = getNetScore(true, longChainsCount, triangularChainsCount, chains2Count, chains1Count);
+        int normalScore = getNetScore(false, longChainsCount, triangularChainsCount, chains2Count, chains1Count);
+        
+        if(doubleDealScore > normalScore) {
+            System.out.println("################################SACRIFICE###############################################");
+            printStatus(longChainsCount, triangularChainsCount, chains2Count, chains1Count);
+            return true;
+        }
+        printStatus(longChainsCount, triangularChainsCount, chains2Count, chains1Count);
+        return false;
+    }
+    
+    public int getNetScore(boolean doubleDeal, int longChainsCount, int triangularChainsCount, int chains2Count, int chains1Count) {
+        int score = 0;
+        boolean myGain = false;
+        
+        if(doubleDeal) {
+            myGain = true;
+            score = -2;
+        }
+        
+        Queue<Integer> queue = new LinkedList<Integer>();
+        for(int i = 0; i < chains1Count; i++) {
+            queue.add(1);
+        }
+        for(int i = 0; i < chains2Count; i++) {
+            queue.add(2);
+        }
+        for(int i = 0; i < triangularChainsCount; i++) {
+            queue.add(3);
+        }
+        
+        while(!queue.isEmpty()) {
+            int points = queue.poll();
+            if(myGain) {
+                score += points;
+            }
+            else {
+                score -= points;
+            }
+            myGain = !myGain;
+        }
+        
+        int hexagonsLeft = 0;
+        for(Hexagon hexagon: Hexagons.values()) {
+            if(hexagon.getSidesTaken() != 6) {
+                hexagonsLeft++;
+            }
+        }
+        
+        int chainScore = hexagonsLeft
+                        - ((triangularChainsCount * 3) + (chains2Count * 2) + (chains1Count * 1)) 
+                        - (Math.max((longChainsCount - 1) * 2, 0))
+                        - 2;
+        
+        if (myGain) {
+            score += chainScore;
+        }
+        else {
+            score -= chainScore;
+        }
+        return score;
+    }
+    
 }
