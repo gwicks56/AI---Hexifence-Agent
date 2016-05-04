@@ -242,6 +242,11 @@ public class Game {
         }
        return centres;
 	}
+	
+    public int getDimension() {
+        return dimension;
+    }
+
 
     public int getDoubleCrossedCount() {
         return doubleCrossedCount;
