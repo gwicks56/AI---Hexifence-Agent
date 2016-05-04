@@ -220,7 +220,7 @@ public class MoveFinderSuper implements IMoveFinder {
         return edges.get(index);
     }
     
-    public void printStatus(int longChainsCount, int triangularChainsCount, int chains2Count, int chains1Count) {
+    public void printStatus(int longChainsCount, int triangularChainsCount, int plusChainsCount, int chains1Count) {
         int notCaptured = 0;
         int size3 = 0, size2 = 0, size1 = 0, size0 = 0, size4 = 0, size5 = 0;
         for(Hexagon hexagon: Hexagons.values()) {
@@ -264,8 +264,8 @@ public class MoveFinderSuper implements IMoveFinder {
         System.out.println("EDGES LEFT: " + enc);
         System.out.println("TOTAL CHAIN COUNTS: " + OpenChains.size());
         System.out.println("CHAIN L COUNTS: " + longChainsCount);
+        System.out.println("CHAIN P COUNTS: " + plusChainsCount);
         System.out.println("CHAIN T COUNTS: " + triangularChainsCount);
-        System.out.println("CHAIN 2 COUNTS: " + chains2Count);
         System.out.println("CHAIN 1 COUNTS: " + chains1Count);
 
         
@@ -288,8 +288,6 @@ public class MoveFinderSuper implements IMoveFinder {
         int plusChainsCount = 0;
         /* Count of chains 3 arranged in circular triangle and can not offer double deal sacrifice */
         int triangularChainsCount = 0;
-        /* Count of chains 2 which cannot offer double deal sacrifice */
-        int chains2Count = 0;
         /* Count of chains 1 which cannot offer double deal sacrifice */
         int chains1Count = 0;
         
@@ -304,7 +302,7 @@ public class MoveFinderSuper implements IMoveFinder {
                 // 3-length chains as double-dealing
                 // sacrifice moves cannot be done on them
                 plusChainsCount++;
-                size = 2.7f;
+                size = 2.6f;
             }
             
             else if(IsTriangularChain(chain)) {
@@ -312,14 +310,11 @@ public class MoveFinderSuper implements IMoveFinder {
                 // These chains are considered smaller than usual
                 // 3-length chains as double-dealing
                 // sacrifice moves cannot be done on them
-                size = 2.5f; 
+                size = 1.5f; 
                 triangularChainsCount++;
             }
             else if (chain.size() > 2) {
                 longChainsCount++;          
-            }
-            else if (chain.size() == 2) {
-                chains2Count++;
             }
             else if(chain.size() == 1) {
                 chains1Count++;
@@ -338,26 +333,26 @@ public class MoveFinderSuper implements IMoveFinder {
         
         // Scores for double-dealing or not double dealing respectively
         int doubleDealScore = getNetScore(true, longChainsCount,plusChainsCount,
-                triangularChainsCount, chains2Count, chains1Count);
+                triangularChainsCount, chains1Count);
         int normalScore = getNetScore(false, longChainsCount, plusChainsCount,
-                triangularChainsCount, chains2Count, chains1Count);
+                triangularChainsCount,  chains1Count);
         game.setDoubleCrossedCount(game.getDoubleCrossedCount()+1);
         if(doubleDealScore > normalScore) {
             System.out.println("###############################################################################");
             System.out.println("SACRIFICE");
-            printStatus(longChainsCount, triangularChainsCount, chains2Count, chains1Count);
+            printStatus(longChainsCount, triangularChainsCount, plusChainsCount, chains1Count);
             System.out.println("sm: " + sm.size());
             System.out.println("cm: " + cm.size());
             return true;
         }
-        printStatus(longChainsCount, triangularChainsCount, chains2Count, chains1Count);
+        printStatus(longChainsCount, triangularChainsCount, plusChainsCount, chains1Count);
         System.out.println("sm: " + sm.size());
         System.out.println("cm: " + cm.size());
         return false;
     }
     
     public int getNetScore(boolean doubleDeal, int longChainsCount, int plusChainsCount,
-            int triangularChainsCount, int chains2Count, int chains1Count) {
+            int triangularChainsCount, int chains1Count) {
         int score = 0;
         boolean myGain = false;
         
@@ -372,9 +367,6 @@ public class MoveFinderSuper implements IMoveFinder {
         Queue<Integer> queue = new LinkedList<Integer>();
         for(int i = 0; i < chains1Count; i++) {
             queue.add(1);
-        }
-        for(int i = 0; i < chains2Count; i++) {
-            queue.add(2);
         }
         for(int i = 0; i < triangularChainsCount; i++) {
             queue.add(3);
@@ -411,7 +403,7 @@ public class MoveFinderSuper implements IMoveFinder {
         // double dealing are won from the chains.. This way was used because
         // a hexagon may be trapped between multiple chains
         int chainScore = hexagonsLeft - (plusChainsCount * 4)
-                        - ((triangularChainsCount * 3) + (chains2Count * 2) + (chains1Count * 1)) 
+                        - ((triangularChainsCount * 3) + (chains1Count * 1)) 
                         - (Math.max((longChainsCount - 1) * 2, 0)) 
                         - 2; 
         
