@@ -1,4 +1,7 @@
-package aiproj.hexifence.mskgw;
+package airproj.hexifence;
+
+import aiproj.hexifence.mskgw.GWMSK;
+import aiproj.hexifence.mskgw.Test;
 
 /*   
  *   Referee:

@@ -3,6 +3,8 @@ package aiproj.hexifence.mskgw;
 import java.awt.Point;
 import java.io.PrintStream;
 
+import airproj.hexifence.*;
+
 
 
 public class GWMSK implements Player, Piece {

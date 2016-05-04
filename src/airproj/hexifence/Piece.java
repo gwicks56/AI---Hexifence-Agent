@@ -1,4 +1,4 @@
-package aiproj.hexifence.mskgw;
+package airproj.hexifence;
 /*
  *   Piece:
  *      Define types of states that can appear on a board

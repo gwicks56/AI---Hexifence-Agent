@@ -10,6 +10,8 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import airproj.hexifence.*;
+
 
 /*
 * This is the entry point of hexifence game
