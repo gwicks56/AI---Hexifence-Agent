@@ -291,18 +291,23 @@ public class MoveFinderSuper implements IMoveFinder {
         /* Count of chains 1 which cannot offer double deal sacrifice */
         int chains1Count = 0;
         
-              
+        ArrayList<Hexagon> triangularChain = null;
+        ArrayList<Hexagon> plusChain = null;
+        int longChainsHexCount = 0;
+        
         float minSize = Hexagons.size();
-
+        
+        boolean isOpen = false;
         for(ArrayList<Hexagon> chain : OpenChains) {
             float size = chain.size();
-
+            
             if(IsPlusChain(chain)) {
                 // These chains are considered smaller than usual
-                // 3-length chains as double-dealing
+                // 4-length chains as double-dealing
                 // sacrifice moves cannot be done on them
                 plusChainsCount++;
-                size = 2.6f;
+                plusChain = chain;
+                size = 3.5f;
             }
             
             else if(IsTriangularChain(chain)) {
@@ -310,11 +315,13 @@ public class MoveFinderSuper implements IMoveFinder {
                 // These chains are considered smaller than usual
                 // 3-length chains as double-dealing
                 // sacrifice moves cannot be done on them
-                size = 1.5f; 
+                size = 2.5f; 
+                triangularChain = chain;
                 triangularChainsCount++;
             }
             else if (chain.size() > 2) {
-                longChainsCount++;          
+                longChainsCount++;     
+                longChainsHexCount += chain.size();
             }
             else if(chain.size() == 1) {
                 chains1Count++;
@@ -322,9 +329,38 @@ public class MoveFinderSuper implements IMoveFinder {
             // Find the smallest chain for later use
             if(size < minSize) {
                 smallestChain = chain;
+                isOpen = false;
+                if((float)chain.size() == size) {
+                    isOpen = true;
+                }
                 minSize = size;
             }
-            
+        }
+        
+        // Hexagons which can be won from long chains (all of last chain + each chain - 2)
+        int longChainsHexWinCount = longChainsHexCount - Math.max((longChainsCount - 1) * 2, 0); 
+        
+        // Consider the smallestChain to open up
+        // to be triangular or plus when similar sized
+        // open chains do not get you more points
+        if(isOpen && smallestChain.size() == 2) {
+            if(triangularChainsCount > 0) {
+                if(longChainsHexWinCount >= 3) {
+                    smallestChain = triangularChain;
+                }
+            }
+            else if(plusChainsCount > 0) {
+                if(longChainsHexWinCount >= 4) {
+                    smallestChain = plusChain;
+                }
+            }
+        }
+        else if(isOpen && smallestChain.size() == 3) {
+            if(plusChainsCount > 0) {
+                if(longChainsHexWinCount >= 4) {
+                    smallestChain = plusChain;
+                }
+            }
         }
         
         if(DoubleDeals.size() != 1) {
@@ -400,8 +436,7 @@ public class MoveFinderSuper implements IMoveFinder {
         // 2 hexagons are sacrificed in double dealing move for all except last chain
         // Every remaining hexagon except the short non double-dealing, ones lost in
         // the long chains to maintain control (double dealings) and the initial
-        // double dealing are won from the chains.. This way was used because
-        // a hexagon may be trapped between multiple chains
+        // double dealing are won from the chains.. 
         int chainScore = hexagonsLeft - (plusChainsCount * 4)
                         - ((triangularChainsCount * 3) + (chains1Count * 1)) 
                         - (Math.max((longChainsCount - 1) * 2, 0)) 
