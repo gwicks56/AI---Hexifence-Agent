@@ -1,4 +1,4 @@
-package airproj.hexifence;
+package aiproj.hexifence;
 
 import java.io.PrintStream;
 

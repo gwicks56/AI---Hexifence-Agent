@@ -1,6 +1,6 @@
 package aiproj.hexifence.mskgw;
 
-import airproj.hexifence.Referee;
+import aiproj.hexifence.Referee;
 
 public class Test {
     public static int lossCountsWhileInControl = 0;

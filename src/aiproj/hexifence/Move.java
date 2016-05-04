@@ -1,4 +1,4 @@
-package airproj.hexifence;
+package aiproj.hexifence;
 /*
  *   Move:
  *      Define possible hexifence move

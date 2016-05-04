@@ -3,7 +3,7 @@ package aiproj.hexifence.mskgw;
 import java.awt.Point;
 import java.io.PrintStream;
 
-import airproj.hexifence.*;
+import aiproj.hexifence.*;
 
 
 

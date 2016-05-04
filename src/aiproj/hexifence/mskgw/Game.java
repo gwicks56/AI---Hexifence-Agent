@@ -10,7 +10,7 @@ import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import airproj.hexifence.*;
+import aiproj.hexifence.*;
 
 
 /*

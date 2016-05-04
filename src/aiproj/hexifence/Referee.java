@@ -1,4 +1,4 @@
-package airproj.hexifence;
+package aiproj.hexifence;
 
 import aiproj.hexifence.mskgw.GWMSK;
 import aiproj.hexifence.mskgw.Test;
