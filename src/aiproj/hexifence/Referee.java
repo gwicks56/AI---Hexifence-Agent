@@ -146,13 +146,21 @@ public class Referee implements Piece{
         if(P1.getWinner() != P2.getWinner()) return 0;
 		
         if (P1.getWinner() == 2) {
-          if(((GWMSK)P1).game.getDoubleCrossedCount() > 0) {
+            if(((GWMSK)P2).game.getDoubleCrossedCount() > 0) {
+                Test.winsCountsWhileInControl++;
+                System.out.println("WHY");
+            }
+            if(((GWMSK)P1).game.getDoubleCrossedCount() > 0) {
                 Test.lossCountsWhileInControl++;
                 System.out.println("WHY");
             }
 		    return 2;
 		}
 		if (P1.getWinner() == 1) {
+            if(((GWMSK)P1).game.getDoubleCrossedCount() > 0) {
+                Test.winsCountsWhileInControl++;
+                System.out.println("WHY");
+            }
 		    if(((GWMSK)P2).game.getDoubleCrossedCount() > 0) {
 		        Test.lossCountsWhileInControl++;
 		        System.out.println("WHY");

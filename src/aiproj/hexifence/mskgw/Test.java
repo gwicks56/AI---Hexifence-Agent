@@ -4,7 +4,7 @@ import aiproj.hexifence.Referee;
 
 public class Test {
     public static int lossCountsWhileInControl = 0;
-    
+    public static int winsCountsWhileInControl = 0;
     public static void main(String[] args) {
         
         
@@ -28,7 +28,9 @@ public class Test {
         
         System.out.println("P1 WIN: " + P1count);
         System.out.println("P2 WIN: " + P2count);
+        System.out.println("win counts in control: " + winsCountsWhileInControl);
         System.out.println("loss counts in control: " + lossCountsWhileInControl);
+        System.out.println("win in control%: " + (winsCountsWhileInControl/((double)(winsCountsWhileInControl+lossCountsWhileInControl))) * 100.0);
         System.out.println("P1 WIN%: " + (P1count/((double)(P1count+P2count))) * 100.0);
         System.out.println("P2 WIN%: " + (P2count/((double)(P1count+P2count))) * 100.0);
         System.out.println("ERROR : " + error);
