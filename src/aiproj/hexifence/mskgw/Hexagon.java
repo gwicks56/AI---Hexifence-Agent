@@ -12,78 +12,85 @@ import java.util.ArrayList;
 
 /*
  * Hexagon data structure
- * Each hexagon has a position, and array of Edges and a counter tracking how many sides have been taken
+ * Each hexagon has a position, and array of Edges and a counter tracking how 
+ many sides have been taken
  */
 public class Hexagon {
 
-	private ArrayList<Edge> edges; // List of edges from top-right edge going clockwise
-	private Point position; // the position of the centre of the hexagon
-	private int sidesTaken; // the number of edges captured by player
-	private int colour; // colour after being captured
-	private boolean visited; //
-	
-	public Hexagon(Point position){
-		sidesTaken = 0;
-		this.position = position;
-		edges = new ArrayList<Edge>(6);
-		setVisited(false);
-	}
+    // List of edges from top-right edge going clockwise
+    private ArrayList<Edge> edges; 
+    // the position of the centre of the hexagon
+    private Point position; 
+    // the number of edges captured by player
+    private int sidesTaken; 
+    // colour after being captured
+    private int colour; 
+    
+    private boolean visited; 
 
-	/*
-	* Return arrayList of hexagons Edges
-	*/	
+    
+    public Hexagon(Point position){
+        sidesTaken = 0;
+        this.position = position;
+        edges = new ArrayList<Edge>(6);
+        setVisited(false);
+    }
 
-	public ArrayList<Edge> getEdges() {
-		return edges;
-	}
+    /*
+    * Return arrayList of hexagons Edges
+    */  
 
-	/*
-	* Add an Edge to the hexagon
-	*/	
+    public ArrayList<Edge> getEdges() {
+        return edges;
+    }
 
-	public void addEdge(int index, Edge edge) {
-		edges.add(index, edge);
-	}
+    /*
+    * Add an Edge to the hexagon
+    */  
 
-	/*
-	* Return point position of hexagon
-	*/	
+    public void addEdge(int index, Edge edge) {
+        edges.add(index, edge);
+    }
 
-	public Point getPosition() {
-		return position;
-	}
+    /*
+    * Return point position of hexagon
+    */  
 
-	/*
-	* Set position of hexagon
-	*/	
+    public Point getPosition() {
+        return position;
+    }
 
-	public void setPosition(Point position) {
-		this.position = position;
-	}
+    /*
+    * Set position of hexagon
+    */  
 
-	/*
-	* Return number of sides of hexagon currently captured
-	*/	
+    public void setPosition(Point position) {
+        this.position = position;
+    }
 
-	public int getSidesTaken() {
-		return sidesTaken;
-	}
+    /*
+    * Return number of sides of hexagon currently captured
+    */  
 
-	/*
-	* Capture an Edge and update number of Edges captured
-	*/	
+    public int getSidesTaken() {
+        return sidesTaken;
+    }
 
-	public void captureSide() {
-		this.sidesTaken++;
-	}
+    /*
+    * Capture an Edge and update number of Edges captured
+    */  
 
-	public boolean isVisited() {
-		return visited;
-	}
+    public void captureSide() {
+        this.sidesTaken++;
+    }
 
-	public void setVisited(boolean visited) {
-		this.visited = visited;
-	}
+    public boolean isVisited() {
+        return visited;
+    }
+
+    public void setVisited(boolean visited) {
+        this.visited = visited;
+    }
 
     public int getColour() {
         return colour;
@@ -92,6 +99,6 @@ public class Hexagon {
     public void setColour(int colour) {
         this.colour = colour;
     }
-	
-	
+    
+    
 }

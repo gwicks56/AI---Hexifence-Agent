@@ -19,9 +19,9 @@ public class Chain {
     public static int size = 0;             // size of chain
     public static int plusSize = 0;         // size of plus shaped chain
     public static int triangleSize = 0;     // size of triangle shaped chain
-    public static int singleSize = 0;       // number of single hexagons for capture
+    public static int singleSize = 0;   // number of single hexagons for capture
     public static int longSize = 0;         // length of normal long chain
-    public static int longWinPoints = 0;    // points available for long chain with sacrifice
+    public static int longWinPoints = 0;    // points available with sacrifice
     public static Chain smallest;           //smallest chain
     public static Chain triangular;         // is triangular
     public static Chain plus;               // is plus
@@ -61,13 +61,17 @@ public class Chain {
                 longWinPoints -= 2;
             }
         }
+
+        //single hexagon chain
         else if(chainUnits.size() == 1) {
             singleSize++;
         }
         else {
             System.out.println("Empty Chain Error");
         }
-   
+
+
+        //check if smallest chain
         if(smallest == null || size() < smallest.size()) {
             smallest = this;
         }
@@ -89,19 +93,19 @@ public class Chain {
         triangular = null;
         plus = null;
     }
-
+    //get size of chain
     public int size() {
         return chainUnits.size();
     }
-    
+    // get the array of hexagons in chain
     public ArrayList<Hexagon> getChainUnits() {
         return chainUnits;
     }
-
+    // return true if plus shaped
     public boolean isPlus() {
         return isPlus;
     }
-
+    // return true if triangle shaped
     public boolean isTriangle() {
         return isTriangle;
     }
@@ -119,13 +123,15 @@ public class Chain {
         ArrayList<Hexagon> horizontals = new ArrayList<Hexagon>();
         ArrayList<Hexagon> verticals = new ArrayList<Hexagon>();
      
-        // Only 2 hexagons share only 1 marked edge which are referred as horizontals    
+        // Only 2 hexagons share only 1 marked edge which are referred 
+        //as horizontals    
         int sharedMarkedCount = 0;
         for(Hexagon h1 : chainUnits) {
             for(Hexagon h2: chainUnits) {
                 if(h1 == h2) continue;          
                 for(Edge edge: h1.getEdges()) {
-                    if(edge.isMarked() && edge.isShared() && edge.getOtherParent(h1) == h2) {
+                    if(edge.isMarked() && edge.isShared() && 
+                        edge.getOtherParent(h1) == h2) {
                         sharedMarkedCount++;
                         if (!horizontals.contains(h1)) horizontals.add(h1);
                         if (!horizontals.contains(h2)) horizontals.add(h2);
@@ -134,7 +140,8 @@ public class Chain {
  
             }
         }
-        // Two hexagons must share 1 edge (count is 2 here as it is done twice in loop)
+        // Two hexagons must share 1 edge (count is 2 here as it 
+        //is done twice in loop)
         if(sharedMarkedCount != 2 || horizontals.size() !=2) return false;
         
         // The other two are verticals

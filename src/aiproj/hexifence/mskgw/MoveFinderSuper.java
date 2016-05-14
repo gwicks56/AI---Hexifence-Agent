@@ -23,9 +23,9 @@ import java.util.Random;
 
 public class MoveFinderSuper implements IMoveFinder {
     
-    private ArrayList<Chain> Chains;                        // Array of chains
-    private ArrayList<ArrayList<Edge>> DoubleDeals;         // Edges for double dealing
-    private Chain offerChain;                               // chain to be offered to opponent
+    private ArrayList<Chain> Chains;                 // Array of chains
+    private ArrayList<ArrayList<Edge>> DoubleDeals;  // Edges for double dealing
+    private Chain offerChain;              // chain to be offered to opponent
     private Random random;
     private Game game;
     private HashMap<Point, Hexagon> Hexagons;
@@ -34,8 +34,8 @@ public class MoveFinderSuper implements IMoveFinder {
     
     public MoveFinderSuper(Game game) {
         this.game = game;
-        Hexagons = game.getHexagons();                      // get all the hexagons
-        Edges = game.getEdges();                            // get all the edges
+        Hexagons = game.getHexagons();                  // get all the hexagons
+        Edges = game.getEdges();                        // get all the edges
         random = new Random();  
         Chains = new ArrayList<Chain>();
         DoubleDeals = new ArrayList<ArrayList<Edge>>();
@@ -44,9 +44,12 @@ public class MoveFinderSuper implements IMoveFinder {
     
     
     public Edge findMove() {
-        ArrayList<Edge> safeMoves = new ArrayList<Edge>();      // Array of moves that will not give opponent a capture
-        ArrayList<Edge> validMoves = new ArrayList<Edge>();     // All valid moves
-        ArrayList<Edge> captureMoves = new ArrayList<Edge>();   // moves which capture hexagon
+        // Array of moves that will not give opponent a capture
+        ArrayList<Edge> safeMoves = new ArrayList<Edge>();      
+        // All valid moves
+        ArrayList<Edge> validMoves = new ArrayList<Edge>();  
+        // moves which capture hexagon 
+        ArrayList<Edge> captureMoves = new ArrayList<Edge>();   
         
         // Generates safe(non-capturable), unsafe and capture moves
         for (Edge edge: Edges.values()) {
@@ -92,16 +95,18 @@ public class MoveFinderSuper implements IMoveFinder {
         // (5-SIDE CAPTURED HEXAGON SHARED WITH 4 SIDE-CAPTURED HEXAGON)
         // THE LATTER HEXAGON IS NOT SHARED WITH A 4-SIDE-CAPTURED HEXAGON
         findDoubleDeals(); 
-        System.out.println("DOUBLE DEAL SIZE: " + DoubleDeals.size());
-        //printStatus(safeMoves, captureMoves, chain3Count, chain2Count, chain1Count);
-        // If there are 0 or 2 or more double dealing moves and a capture move, then
-        // capture it as we will still have a double dealer to make use of later
-        if((DoubleDeals.isEmpty() || DoubleDeals.size() >= 2) && !captureMoves.isEmpty()) {
+        
+        // If there are 0 or 2 or more double dealing moves and a capture move, 
+        // then capture it as we will still have a double dealer to make use of 
+        // later
+        if((DoubleDeals.isEmpty() || DoubleDeals.size() >= 2)
+         && !captureMoves.isEmpty()) {
             return selectRandomly(captureMoves);
         }
         
         // If there is a capture move that is not part of the single double deal
-        // chain of moves, then capture it as it won't affect the double deal chain
+        // chain of moves, then capture it as it won't affect the double 
+        // deal chain
         ArrayList<Edge> captureMovesNonDD = new ArrayList<Edge>();
         if(DoubleDeals.size() == 1 && !captureMoves.isEmpty()) {
             ArrayList<Edge> chain = DoubleDeals.get(0);
@@ -122,12 +127,14 @@ public class MoveFinderSuper implements IMoveFinder {
             }
         }
         
-        /* If there is one double deal move in the plate, try to see if its good to use it */
+        /* If there is one double deal move in the plate, try to see if its 
+        good to use it */
         if(willSacrifice()) {
             return DoubleDeals.get(0).get(1);    
         }
 
-        // If we decided not to sacrifice the double deal move then we capture them
+        // If we decided not to sacrifice the double deal move then 
+        // we capture them
         if(!captureMoves.isEmpty()) {
             return selectRandomly(captureMoves);
         }
@@ -154,7 +161,7 @@ public class MoveFinderSuper implements IMoveFinder {
      * where we have the option of sacrificing two hexagons
      * in order to give the opponent the next turn
      */
-    public void findDoubleDeals() {
+    private void findDoubleDeals() {
         DoubleDeals.clear();
         for(Hexagon hexagon: Hexagons.values()) {
             if(hexagon.getSidesTaken() != 5) continue;
@@ -195,7 +202,7 @@ public class MoveFinderSuper implements IMoveFinder {
     /*
      * This method finds chains of hexagons with 4 sides captured
      */     
-    public void findChains() {
+    private void findChains() {
         Chains.clear();
         Chain.initialize();
         for(Hexagon hexagon: Hexagons.values()) {
@@ -219,7 +226,7 @@ public class MoveFinderSuper implements IMoveFinder {
     /* This recursively finds a chain of hexagons with size 4 from
      * one starting point
      */
-    public void findChains(Hexagon current, ArrayList<Hexagon> chain) {
+    private void findChains(Hexagon current, ArrayList<Hexagon> chain) {
         if(current.isVisited()) return;
         current.setVisited(true);
         if(current.getSidesTaken() > 4) {
@@ -239,7 +246,7 @@ public class MoveFinderSuper implements IMoveFinder {
     }
     
     //randomly select edge which does not provide capture move for opponent
-    public Edge selectRandomly(ArrayList<Edge> edges) {
+    private Edge selectRandomly(ArrayList<Edge> edges) {
         int index = random.nextInt(edges.size());
         return edges.get(index);
     }
@@ -282,9 +289,7 @@ public class MoveFinderSuper implements IMoveFinder {
         game.setDoubleCrossedCount(game.getDoubleCrossedCount()+1);
         
         if(doubleDealScore > normalScore) {
-            System.out.println("###############################################################################");
-            System.out.println("SACRIFICE");
-            printStatus();
+            
             return true;
         }
         printStatus();
@@ -293,7 +298,7 @@ public class MoveFinderSuper implements IMoveFinder {
     
     
     
-    public int getNetScore(boolean doubleDeal) {
+    private int getNetScore(boolean doubleDeal) {
         int score = 0;
         boolean myGain = false;
         
@@ -353,7 +358,7 @@ public class MoveFinderSuper implements IMoveFinder {
     
     
     
-    public void printStatus() {
+    private void printStatus() {
         int notCaptured = 0;
         int size3 = 0, size2 = 0, size1 = 0, size0 = 0, size4 = 0, size5 = 0;
         for(Hexagon hexagon: Hexagons.values()) {
@@ -379,34 +384,7 @@ public class MoveFinderSuper implements IMoveFinder {
                 size0++;
             }
         }
-        System.out.println("++++++++++++++++++++++++++++++++++++");
-        System.out.println("DOUBLE DEAL SIZE: " + DoubleDeals.size());
-        System.out.println("HEXAGONS LEFT: " + notCaptured);
-        System.out.println("HEXAGONS WITH SIZE 5: " + size5);
-        System.out.println("HEXAGONS WITH SIZE 4: " + size4);
-        System.out.println("HEXAGONS WITH SIZE 3: " + size3);
-        System.out.println("HEXAGONS WITH SIZE 2: " + size2);
-        System.out.println("HEXAGONS WITH SIZE 1: " + size1);
-        System.out.println("HEXAGONS WITH SIZE 0: " + size0);
-        int enc = 0;
-        for(Edge edge: Edges.values()) {
-            if(!edge.isMarked()) {
-                enc++;
-            }
-        }
-        System.out.println("EDGES LEFT: " + enc);
-        System.out.println("TOTAL CHAIN COUNTS: " + Chains.size());
-        System.out.println("CHAIN L COUNTS: " + Chain.longSize);
-        System.out.println("CHAIN P COUNTS: " + Chain.plusSize);
-        System.out.println("CHAIN T COUNTS: " + Chain.triangleSize);
-        System.out.println("CHAIN 1 COUNTS: " + Chain.singleSize);
-
-        
-        for(Chain e : Chains) {
-           System.out.println("CHAIN SIZE: " +e.size());
-           
-        }
-        System.out.println("++++++++++++++++++++++++++++++++++++");
+       
     }
     
 }
