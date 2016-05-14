@@ -1,3 +1,8 @@
+/*
+ * Geordie Wicks [185828] and Mubashwer Salman Khurshid [601738]
+ * Project 1 - Artificial Intelligence
+ */
+
 package aiproj.hexifence.mskgw;
 
 import java.awt.Point;

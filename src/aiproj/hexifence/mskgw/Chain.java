@@ -1,20 +1,32 @@
+/*
+ * Geordie Wicks [185828] and Mubashwer Salman Khurshid [601738]
+ * Project 1 - Artificial Intelligence
+ */
+
+
 package aiproj.hexifence.mskgw;
 
 import java.util.ArrayList;
 
+// Chain data structure
+// This structure is essential for our method of playing
+// Here we store all the information we need about each chain
+// including it's size, shape etc
+
+
 public class Chain {
 
-    public static int size = 0;    
-    public static int plusSize = 0;  
-    public static int triangleSize = 0;  
-    public static int singleSize = 0;
-    public static int longSize = 0;
-    public static int longWinPoints = 0;
-    public static Chain smallest;
-    public static Chain triangular;
-    public static Chain plus;
+    public static int size = 0;             // size of chain
+    public static int plusSize = 0;         // size of plus shaped chain
+    public static int triangleSize = 0;     // size of triangle shaped chain
+    public static int singleSize = 0;       // number of single hexagons for capture
+    public static int longSize = 0;         // length of normal long chain
+    public static int longWinPoints = 0;    // points available for long chain with sacrifice
+    public static Chain smallest;           //smallest chain
+    public static Chain triangular;         // is triangular
+    public static Chain plus;               // is plus
     
-    private ArrayList<Hexagon> chainUnits;
+    private ArrayList<Hexagon> chainUnits;  // array of hexagons in a chain
     private boolean isPlus;  
     private boolean isTriangle;
     
@@ -23,17 +35,25 @@ public class Chain {
         isTriangle = false;
         isPlus = false;
         this.chainUnits = chainUnits;
+
+        // check if triangle shape
         
         if(isTriangularChain(chainUnits)) {
             triangleSize++;
             isTriangle = true;
             triangular = this;
         }
+
+        //check if plus shaped chain
+
         else if(isPlusChain(chainUnits)) {
             plusSize++;
             isPlus = true;
             plus = this;
         }
+
+        // else normal chain of length > 1
+
         else if(chainUnits.size() > 1) {
             longSize++;
             longWinPoints = size();

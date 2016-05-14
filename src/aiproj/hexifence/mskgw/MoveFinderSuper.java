@@ -1,3 +1,9 @@
+/*
+ * Geordie Wicks [185828] and Mubashwer Salman Khurshid [601738]
+ * Project 1 - Artificial Intelligence
+ */
+
+
 package aiproj.hexifence.mskgw;
 
 import java.awt.Point;
@@ -7,11 +13,19 @@ import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Random;
 
+
+/*
+ * This class implements our AI behaviour
+ * Primarily concerned with looking for chains of hexagons
+ * Chains are classified into their diffent types including
+ * chains which can be used for double dealing
+ */
+
 public class MoveFinderSuper implements IMoveFinder {
     
-    private ArrayList<Chain> Chains;
-    private ArrayList<ArrayList<Edge>> DoubleDeals; 
-    private Chain offerChain;
+    private ArrayList<Chain> Chains;                        // Array of chains
+    private ArrayList<ArrayList<Edge>> DoubleDeals;         // Edges for double dealing
+    private Chain offerChain;                               // chain to be offered to opponent
     private Random random;
     private Game game;
     private HashMap<Point, Hexagon> Hexagons;
@@ -20,8 +34,8 @@ public class MoveFinderSuper implements IMoveFinder {
     
     public MoveFinderSuper(Game game) {
         this.game = game;
-        Hexagons = game.getHexagons();
-        Edges = game.getEdges();    
+        Hexagons = game.getHexagons();                      // get all the hexagons
+        Edges = game.getEdges();                            // get all the edges
         random = new Random();  
         Chains = new ArrayList<Chain>();
         DoubleDeals = new ArrayList<ArrayList<Edge>>();
@@ -30,9 +44,9 @@ public class MoveFinderSuper implements IMoveFinder {
     
     
     public Edge findMove() {
-        ArrayList<Edge> safeMoves = new ArrayList<Edge>();
-        ArrayList<Edge> validMoves = new ArrayList<Edge>();
-        ArrayList<Edge> captureMoves = new ArrayList<Edge>();
+        ArrayList<Edge> safeMoves = new ArrayList<Edge>();      // Array of moves that will not give opponent a capture
+        ArrayList<Edge> validMoves = new ArrayList<Edge>();     // All valid moves
+        ArrayList<Edge> captureMoves = new ArrayList<Edge>();   // moves which capture hexagon
         
         // Generates safe(non-capturable), unsafe and capture moves
         for (Edge edge: Edges.values()) {
@@ -224,6 +238,7 @@ public class MoveFinderSuper implements IMoveFinder {
         }
     }
     
+    //randomly select edge which does not provide capture move for opponent
     public Edge selectRandomly(ArrayList<Edge> edges) {
         int index = random.nextInt(edges.size());
         return edges.get(index);

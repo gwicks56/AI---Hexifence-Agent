@@ -1,66 +1,166 @@
+##############################################################################
+* KEYWORDS
+##############################################################################
+
+DOUBLE-DEALING:
+This is a situation which occurs when a hexagon having only one free edge 
+(edge A) is adjacent to another hexagon with 2 free edges (edge A and edge B) 
+but edge B is NOT shared with any hexagon with less than 3 free edges. 
+In this case a player has two options:
+
+1) Normal Play: Capture the two hexagons by marking edge A and then edge B and 
+make the third move.
+
+2) Sacrifice/Double-deal: Mark edge B only. If the opposing player marks 
+edge A then he captures the two hexagons but he also has to make the third 
+move.
+
+
+EXAMPLE OF SACRIFICING USING SQUARE GAME ( EASIER TO DRAW IN ASCII )
+
+---------------------------
+|x|x|x|x|x|x|x|x|x|x|     | - Make final move at end of chain leaving two spare uncaptured hexagons, meaning opponent can only capture those two hexagons,
+---------------------------   rather than the entire next chain.
+
+
+
+------------------------------------------------------------------------------
+CHAIN:
+Chains are sequences of adjacent hexagons with 4 sides captured. If one of the 
+edges of a chain is marked by a player, the opposing player can capture all of 
+the hexagons of the chain. Chains are of various types. They are as follows:
+
+1) Long chains: These are chains of two or more hexagons in which 
+double-dealing is possible.
+
+2) Non-double-dealing chains: 
+  a) Single-hexagon chain: This is a chain with only one hexagon. 
+     Double dealing is not possible.
+
+  b) Y-shaped chain: This is a circular closed chain of 3 hexagons arranged 
+     in a Y-shape in which double dealing is not possible
+
+    / \
+   |   |
+  / \ / \     - Y-shaped ( 3 hexagons )       - Sacrifice not possible
+ |   |   |
+  \ / \ /
+
+
+
+
+  c) X-shaped chain: This is a circular closed chain of 4 hexagons arranged 
+     in an X-shape in which double dealing is not possible. 
+
+
+    / \
+   |   |
+  / \ / \     - X-shaped ( 4 hexagons )      - Sacrifice not possible
+ |   |   |
+  \ / \ /
+   |   |
+    \ /
+
+
+
+------------------------------------------------------------------------------
+CAPTURE MOVE:
+If an edge is shared with any hexagon with only one free edge, then its a 
+capture move because marking this edge captures at least one hexagon.
+
+------------------------------------------------------------------------------
+SAFE MOVE:
+When such an edge is marked, no hexagons are captured and the number of 
+Capture Moves remain the same as well. So opponent always gets the next turn 
+and he/she does not get any extra hexagon to capture.
+
+
+##############################################################################
+* STRUCTURE
+##############################################################################  
+
 Our Project uses basic Java libraries, including:
-Point, ArrayList, HashMap, Iterator and Scanner
+Point, ArrayList, HashMap, Iterator, Point, Random and Scanner
 
-In building Project A, we have concentrated on building a data structure that enables efficient search of the best next move. 
-For this reason, we have decided to use two data structures, the Hexagon, which is made up of Edges.
+The structure of our program is 4 main classes:
 
-The Edge data structure holds information on each Edge, including whether or not it has been captured (isMarked), it’s colour (colour), 
-whether or not the Edge is shared between two Hexagons (isShared), and an ArrayList of the Hexagons it is part of (parents).
+EDGE 	: 	data structure to hold information about each hexagon edge
+		( captured, color, parents etc)
 
-The Hexagon data structure holds information on each Hexagon, including an ArrayList of the Edges it is made up of (edges), 
-it’s position (position) and the number of sides captured (sidesTaken).
+HEXAGON : 	data structure to hold information about each hexagon ( captured, 
+		color, edges, adjacent hexagons)
 
-1. To find the total number of possible moves, we interate over every edge and count the ones that are !isMarked - O (E)
+CHAIN 	: 	data structure to hold information about chains of hexagons. A 
+		chain of hexagons is a series of hexagons whereby if one gets
+		captured they all get captured. In our experimentation chains 
+		were the single most important thing in determining the winner.
+		Chains can be y-shaped, x-shaped, or sequential with various lengths. 
 
-For every Edge in EdgeValues:
-	if Edge is not isMarked:
-		moveCount++
+MOVEFINDER : 	where the game logic is. In this class our program evaluates the board 
+		layout, determines free moves ( moves which dont give up a hexagon for 
+		opponent to capture), single capture moves and chain capture moves. It 
+		is here it evaluates which chains are left, which ones we can win, which 
+		ones opponent is likely to win, and determines whether or not to sacrifice
+		 some hexagons now to win more later.
 
-2. By utilising these data structures, when searching for the best move to make, we can efficiently find out how many hexagons are available for capture 
-( iterate over each hexagon looking for Hexagon objects which have : sidesTaken = 5). With our data structure this is possible in O (H).
 
-For every Hexagon:
-	if sidestaken = 5:
-		captureCount++
 
-3. To find moves in which 2 Hexagons can be captured in only one move, after searching and finding a Hexagon with 5 sides taken, we then look at the other Hexagon 
-which shares an Edge with current Hexagon (isShared), to see if any also have sidesTaken = 5, which means two Hexagons can be captured with only one move and its
-immediately returned. In the worst case scenario every hexagon with 5 sides captured is only adjacent to hexagons with 4 sides captured. In that case, only a small fraction
-of the edges need to be searched. In the worst case scenario this could take O ( H + (p/q)E ) where p < q, but in practice it should be much lower.
+Our approach to building the best AI player we could was to first play the game many times 
+ourselves, trying to find the best game plan. We quickly realised that the winner or loser 
+was almost always determined by who won the most long chains of hexagons ( ie, after winning one
+hexagon, you then win the next, and the next etc). On further play, we realised that the person 
+filling in a long chain, could sacrifice the final two hexagons, in order to be in control for the 
+next chain.
 
-For every Hexagon:
-	if sidesTaken = 5:
-		hexagonCount = 1:
-		for every edge in Hexagon:
-			if edge !isMarked:
-				if getParents = true && parent.sidesTaken = 5:
-					hexagonCount = 2
-					return
-		
+Thus our strategy became one of recognising chains, counting and assessing each one, then 
+determining whether or not sacrificing some hexagons at the end of a chain would increase
+ or decrease our expected score.
 
-H = total number of hexagons
-E = total number of edges
+So our strategy was broadly broken down into four phases:
 
-1) O(E)
+PHASE 1:
+Beginning of game. No hexagons available for capture. Here our AI simply chooses a edge 
+at random, making sure it does not give opponent the opportunity to score. This random 
+edge selection continues until the board is getting filled.
 
-2) O(H)
+PHASE 2:
+Middle of game. Some hexagons available for capture, free moves still available. Here 
+our AI will capture any hexagons that can be captured, then make sure to make next move 
+in such a way as to not give opponent and opportunity to score.
 
-3) O(H + (p/q)E) where p < q
+PHASE 3:
+End phase 1 of game. Hexagons available for capture, no free moves available. Here is 
+where our AI starts to consider it's moves more carefully.
+First it will take any available hexagons for capture, then it looks at which move will 
+give the opponent the lease amount of hexagons. Ie if possible it will give up a single 
+hexagon, or a double chain, or triple etc. The aim being to capture as many hexagons as 
+possible, whilst making sure opponent does not get a long chain.
+In order to do this effectively, we look ahead until the end of the game, and see which 
+sequence of moves would result in the greatest number of points for
+our AI, and least for opponent. It accomplishes this by knowing that 
+we can't sacrifice hexagons to regain control on x-shaped, y-shaped 
+and single chains, so those are put in a queue with the smallest at the front. We then 
+simulate each players moves, ie one player gets one chain, other player gets next chain,
+until the queue is empty and we can move onto the long chains where sacrificing is possible. 
 
-SYNTAX ERROR EXPLANATION:
+PHASE 4:
+End phase 2 of game. Nothing but chains left. This is the point of the game where in our 
+play the winner was usually decided. The player who captures  the most long chains wins, 
+and can quickly rack up a large score compared to opponent. 
+Here our AI needs to classify each chain in to its various types:
+open ended, closed ended, y-shape, x-shape, 1, 2, 3, 4..... hexagons long. Once the hexagons 
+are all classified, our AI captures as many hexagons as it can, with the exception of the final 
+two. It then works out how long the smallest chain it can give to the opponent is. If the smallest 
+chain for opponent  is longer than 2, our AI will sacrifice the final hexagons in our chain. 
+This means the longest chain the opponent can claim is the two hexagons we sacrificed, and then t
+hey must start a chain which is at least 3 hexagons long for us to capture. 
 
-In terms of error checking, our code checks to make sure there are the correct number of rows and columns for the dimensions specified, 
-as well as checking that each entry can only be one of four characters (R,B,+,-).
 
-PLEASE NOTE: the rows and columns do need to be correctly aligned! Ie if one row or column as an incorrect number of whitespaces the program 
-will return an error. The correct number of whitespaces is 1 between each column, and 0 between each row. There CAN'T be leading white spaces
-in rows. But trailing white spaces in rows and trailing blank lines are ignored.
 
-Example:
+********************
+	NOTE
+********************
 
-- - + -
-- + + -
-- +  + -
-- + - -
-
-Will throw an error due to row 3 having an extra whitespace between column 2 and 3.
+Our strategy performs best the larger the dimensions of the board, ie it performs much better on 
+n=3 than n=2, and even better on n=4. This is because the larger the board, the longer the chains 
+that become available at the end of the game.
